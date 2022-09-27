@@ -1,10 +1,12 @@
 ## student-tracker app
 
 Project Description
+
 Student Tracker is a web app that allows you to track your children when they are in
 the school bus on their way to school or back to home.
 
 How It Is Structured
+
 The app consists of 3 user types (Admins, Employees and Parents)
 User Types
 Firstly, the admins, who are responsible for creating, updating and deleting the bus,
@@ -17,6 +19,7 @@ when not coming is toggled it is permanent, parent needs to toggle it back to co
 when the child will be coming the next day).
 
 How to Organize the Application Logically
+
 Since everything is connected to each other, following the given steps will make
 using this application easy. First thing an admin needs to do is to create a bus,
 because no bus means you cannot create employees and students since their
@@ -29,6 +32,7 @@ we can start creating child for the given parent and assign the child to a bus.
 Now that we have everything we need in our application, we can start using it.
 
 How It Works
+
 The application depends on the employee to start the bus session. If the session is
 not active then the only thing users can do is the crud operations on their profiles.
 When the session is activated by the employee, the students whose isComing
@@ -40,6 +44,7 @@ absent so when the parent wants to see their child’s location instead of `view
 map` button they will be seeing a message saying student got off the bus.
 
 Technologies Used
+
 React.js and 3 rd party libraries are used for frontend.
 3 rd party libraries: fortawesome used for the icons that are used in the application,
 react-router-dom@5 used for the navigating in the application and react-transition-
@@ -55,9 +60,10 @@ hashing the users’ passwords as a security measure, multer used as a middlewar
 handle image uploads because multer can process the binary files, sharp used for
 resizing the uploaded images so that there is only one format for all the images, uuid
 used for creating unique names for the uploaded images because when using AWS
-S3*, if you upload an image with a name that already exists in S3 bucket, S3 bucket
+S3, if you upload an image with a name that already exists in S3 bucket, S3 bucket
 will override the existing image.
-* S3 Bucket was required because when the server deployed to Heroku with free tier
+
+*S3 Bucket was required because when the server deployed to Heroku with free tier
 membership, server shuts itself down after some time which results in losing the images that are
 uploaded to the server using fs and having no user images was not appealing to the eye so after
 some research I found that the S3 bucket was a good option for me.
