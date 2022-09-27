@@ -1,0 +1,71 @@
+.busForm {
+  border-radius: 1rem;
+  box-shadow: 0px 0px 6px #f8f8f8;
+  background-color: #f8f8f8;
+  width: 90%;
+  max-width: 50rem;
+  margin: auto;
+  display: grid;
+  grid-column-gap: 1rem;
+  grid-template-areas:
+    "b ."
+    "a a"
+    "c d"
+    "e e"
+    "f g"
+    "h h"
+    "btn btn";
+  padding: 1rem 4rem;
+}
+@media (max-width: 968px) {
+  .busForm {
+    font-size: 0.75rem;
+    grid-row-gap: 0.25rem;
+    padding: 1rem 1rem;
+  }
+}
+@media (max-width: 468px) {
+  .busForm {
+    font-size: 0.7rem;
+    padding: 0.55rem 1.5rem;
+    grid-template-areas:
+      "a"
+      "b"
+      "c"
+      "d"
+      "e"
+      "f"
+      "g"
+      "h"
+      "btn";
+  }
+}
+.schoolName {
+  grid-area: a;
+}
+.licensePlate {
+  grid-area: b;
+}
+.bName {
+  grid-area: c;
+}
+.bSurname {
+  grid-area: d;
+}
+.bPhoneNumber {
+  grid-area: e;
+}
+.hName {
+  grid-area: f;
+}
+.hSurname {
+  grid-area: g;
+}
+.hPhoneNumber {
+  grid-area: h;
+}
+.btn {
+  grid-area: btn;
+  text-align: center;
+  margin-top: 1.125rem;
+}

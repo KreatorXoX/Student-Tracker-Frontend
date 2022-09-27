@@ -1,0 +1,32 @@
+.layout {
+  display: grid;
+  grid-template-areas:
+    "sbar sbar . . sbtn"
+    "content content content content content";
+}
+.searchBar {
+  grid-area: sbar;
+}
+.addNew {
+  grid-area: sbtn;
+  justify-self: flex-end;
+}
+
+.list {
+  grid-area: content;
+}
+
+@media (max-width: 968px) {
+  .layout {
+    grid-template-areas:
+      "sbar sbar sbtn"
+      "content content content";
+  }
+}
+@media (max-width: 500px) {
+  .layout {
+    grid-template-areas:
+      "sbar sbar sbtn"
+      "content content content";
+  }
+}

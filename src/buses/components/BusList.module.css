@@ -1,0 +1,17 @@
+.busList {
+  margin-top: 2rem;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+@media (max-width: 968px) {
+  .busList {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+@media (max-width: 768px) {
+  .busList {
+    grid-template-columns: 1fr 1fr;
+  }
+}

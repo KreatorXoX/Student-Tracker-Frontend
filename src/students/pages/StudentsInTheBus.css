@@ -1,0 +1,17 @@
+.attendanceList {
+  width: 100%;
+}
+
+.wrapper {
+  width: 80%;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(6rem, 10rem));
+  gap: 2rem;
+  justify-content: center;
+  margin: auto;
+}
+.attendanceAction {
+  margin-top: 5rem;
+  display: flex;
+  justify-content: center;
+}

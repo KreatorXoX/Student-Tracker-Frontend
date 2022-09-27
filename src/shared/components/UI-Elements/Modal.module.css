@@ -1,0 +1,44 @@
+.modal {
+  z-index: 100;
+  position: fixed;
+  top: 22vh;
+  left: 10%;
+  width: 80%;
+  background: white;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+}
+
+.modalHeader {
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+  width: 100%;
+  padding: 0.25rem;
+  background: rgba(137, 43, 226, 0.806);
+  color: white;
+}
+
+.modalHeader h2 {
+  margin: 0.5rem;
+}
+
+.modalContent {
+  padding: 1rem 0.5rem;
+}
+.modalContent p {
+  color: black !important;
+  font-weight: 700;
+}
+
+.modalFooter {
+  text-align: center;
+  padding: 1rem 0rem;
+}
+
+@media (min-width: 768px) {
+  .modal {
+    left: calc(50% - 20rem);
+    width: 40rem;
+    font-size: 1rem;
+  }
+}

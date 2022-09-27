@@ -1,0 +1,16 @@
+.layout {
+  display: grid;
+  grid-template-areas:
+    ". . . sbtn"
+    "content content content content";
+}
+
+.addNew {
+  grid-area: sbtn;
+  justify-self: flex-end;
+  margin-bottom: 1rem;
+}
+
+.list {
+  grid-area: content;
+}

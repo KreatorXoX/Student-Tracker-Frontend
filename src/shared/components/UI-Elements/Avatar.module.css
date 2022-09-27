@@ -1,0 +1,40 @@
+.avatar {
+  text-align: center;
+  border: 1px solid transparent;
+  background-color: rgb(182, 148, 255);
+  border-radius: 5%;
+  max-width: 15rem;
+  transition: border ease-out 0.11s;
+  display: grid;
+  grid-template-rows: 1fr;
+}
+a {
+  text-decoration: none;
+}
+.avatar img {
+  margin: auto;
+  display: block;
+  border-radius: 50%;
+  width: 125px;
+  height: 125px;
+  object-fit: cover;
+}
+.avatar h3 {
+  font-size: 1rem;
+  color: #fff;
+}
+
+.avatar:hover {
+  box-shadow: 0 0 0px 2px salmon;
+}
+
+@media (max-width: 968px) {
+  .avatar img {
+    width: 100px;
+    height: 100px;
+  }
+  .avatar h3 {
+    font-size: 0.75rem;
+    color: #fff;
+  }
+}

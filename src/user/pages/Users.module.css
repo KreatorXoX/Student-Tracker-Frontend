@@ -1,0 +1,24 @@
+.layout {
+  display: grid;
+  grid-template-areas:
+    ". . sbtn"
+    "content content content";
+}
+
+.addNew {
+  grid-area: sbtn;
+  justify-self: flex-end;
+  margin-bottom: 1rem;
+}
+
+.list {
+  grid-area: content;
+}
+
+@media (max-width: 768px) {
+  .layout {
+    grid-template-areas:
+      ". sbtn"
+      "content content";
+  }
+}

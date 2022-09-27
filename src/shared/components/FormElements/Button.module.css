@@ -1,0 +1,135 @@
+:root {
+  --danger: rgba(223, 79, 79, 0.8);
+  --danger-hover: rgba(223, 79, 79, 1);
+
+  --success: rgba(40, 140, 40, 0.8);
+  --success-hover: rgba(40, 140, 40, 1);
+
+  --warning: rgba(220, 110, 20, 0.8);
+  --warning-hover: rgba(220, 110, 20, 1);
+
+  --regular: rgba(0, 90, 180, 0.8);
+  --regular-hover: rgba(0, 90, 180, 1);
+}
+
+/*Colors*/
+.danger {
+  background-color: var(--danger);
+  color: white;
+}
+.danger:hover {
+  background-color: var(--danger-hover);
+}
+.success {
+  background-color: var(--success);
+  color: white;
+}
+.success:hover {
+  background-color: var(--success-hover);
+}
+.warning {
+  background-color: var(--warning);
+  color: white;
+}
+.warning:hover {
+  background-color: var(--warning-hover);
+}
+.regular {
+  background-color: var(--regular);
+  color: white;
+}
+.regular:hover {
+  background-color: var(--regular-hover);
+}
+
+/*Sizes*/
+.sm {
+  font-size: 0.75rem;
+}
+.mid {
+  font-size: 1.1rem;
+}
+.large {
+  font-size: 1.2rem;
+}
+
+@media (max-width: 1270px) {
+  .sm {
+    font-size: 0.65rem;
+  }
+  .mid {
+    font-size: 0.75rem;
+  }
+  .large {
+    font-size: 0.85rem;
+  }
+}
+
+/*Inverting*/
+.danger.invert {
+  border: 1px solid var(--danger);
+  background-color: #fff;
+  color: var(--danger);
+  transition: all 0.3s ease-in;
+}
+.danger.invert:hover {
+  background-color: var(--danger-hover);
+  color: #fff;
+}
+
+.success.invert {
+  border: 1px solid var(--success);
+  background-color: #fff;
+  color: var(--success);
+  transition: all 0.3s ease-in;
+}
+.success.invert:hover {
+  background-color: var(--success-hover);
+  color: #fff;
+}
+.warning.invert {
+  border: 1px solid var(--warning);
+  background-color: #fff;
+  color: var(--warning);
+  transition: all 0.3s ease-in;
+}
+.warning.invert:hover {
+  background-color: var(--warning-hover);
+  color: #fff;
+}
+.regular.invert {
+  border: 1px solid var(--regular);
+  background-color: #fff;
+  color: var(--regular);
+  transition: all 0.3s ease-in;
+}
+.regular.invert:hover {
+  background-color: var(--regular-hover);
+  color: #fff;
+}
+/*Classic Styles*/
+.btn {
+  border: none;
+  border-radius: 5px;
+  transition: background-color 0.2s ease-in;
+  padding: 0.25rem 1rem;
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
+  margin-top: 1rem;
+}
+.btn a {
+  color: white;
+}
+.btn:hover {
+  cursor: pointer;
+}
+
+.btn:disabled,
+.btn:hover:disabled,
+.btn:active:disabled {
+  cursor: not-allowed;
+  background-color: #ccc;
+  border-color: #ccc;
+  color: rgba(40, 40, 40, 0.7);
+}

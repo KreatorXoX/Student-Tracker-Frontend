@@ -1,0 +1,98 @@
+.content {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
+  justify-content: center;
+}
+@media (max-width: 468px) {
+  .content {
+    justify-items: center;
+  }
+  .form-control {
+    margin: 0.25rem !important;
+    width: 100%;
+  }
+}
+
+.form-control {
+  margin: 1rem 0;
+}
+
+.form-control label,
+.form-control input,
+.form-control textarea,
+.form-control select {
+  display: inline-block;
+}
+
+.form-control label {
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  color: #2a2d31;
+  display: block;
+}
+
+.form-control input,
+.form-control textarea,
+.form-control select {
+  width: 100%;
+  font: inherit;
+  border: 1px solid rgb(113, 149, 128);
+  border-radius: 0.5rem;
+  background: #f8f8f8;
+  padding: 0.4rem 0.8rem;
+  color: #2a2d31;
+  font-size: 1.125rem;
+  font-weight: 500;
+}
+
+.form-control input::placeholder,
+.form-control textarea::placeholder {
+  color: #7c8085;
+  font-size: 1rem;
+  font-weight: 400;
+}
+
+.form-control input:focus,
+.form-control textarea:focus,
+.form-control select:focus {
+  outline: none;
+  background: #f2f1f1;
+  border: none;
+  box-shadow: 0px 0px 4px #0060de;
+}
+
+.form-control--invalid label::after,
+.form-control--invalid p {
+  content: "*";
+  color: rgba(199, 14, 14, 0.824);
+}
+.form-control--invalid p {
+  position: relative;
+  /* right: 1em; */
+  margin: 0;
+  padding: 0;
+  padding-top: 0.25rem;
+}
+
+.form-control--invalid input,
+.form-control--invalid textarea,
+.form-control--invalid select {
+  box-shadow: 0px 0px 3px rgb(255, 0, 0) !important;
+  border: none;
+}
+.form-control--disabled input {
+  background-color: #cccc;
+  color: rgb(110, 110, 110);
+}
+
+@media (max-width: 968px) {
+  .form-control input,
+  .form-control select,
+  .form-control input::placeholder,
+  .form-control--invalid select,
+  .form-control--invalid select ::placeholder,
+  .form-control--invalid p {
+    font-size: 0.75rem;
+  }
+}

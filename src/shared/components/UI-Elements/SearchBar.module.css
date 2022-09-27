@@ -1,0 +1,22 @@
+.search {
+  border: 1px #ccc solid;
+  border-radius: 0.5rem;
+  width: fit-content;
+
+  background-color: white;
+  padding: 0.25rem;
+}
+.search__input,
+.search__input:active,
+.search__input:focus {
+  border: none;
+  outline: none;
+  padding: 0.25rem 0.5rem;
+  width: 10rem;
+}
+.search__action {
+  border: none;
+  background-color: transparent;
+  color: green;
+  font-size: 1.2rem;
+}

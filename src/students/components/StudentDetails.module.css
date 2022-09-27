@@ -1,0 +1,149 @@
+.studentForm {
+  border-radius: 1rem;
+  box-shadow: 0px 0px 6px #f8f8f8;
+  background-color: #f8f8f8;
+  width: 90%;
+  max-width: 60rem;
+  margin: auto;
+  display: grid;
+  grid-gap: 1rem;
+  grid-template-areas:
+    "pic a b b"
+    "pic c c d"
+    "school school school school"
+    "e e f f"
+    "contact contact map map"
+    "g g g g"
+    "btn btn btn btn";
+
+  padding: 2rem 4rem;
+}
+@media (max-width: 968px) {
+  .profilePic {
+    display: none;
+  }
+  .studentForm {
+    grid-row-gap: 0.25rem;
+    font-size: 0.75rem;
+    padding: 1rem 1rem;
+    grid-template-areas:
+      "pic pic"
+      "a b"
+      "c d"
+      "school school"
+      "e f"
+      "contact map"
+      "g g"
+      "btn btn";
+  }
+}
+@media (max-width: 468px) {
+  .studentForm {
+    grid-row-gap: 0;
+    font-size: 0.7rem;
+    padding: 0 0.5rem;
+    grid-template-areas:
+      "pic"
+      "a"
+      "b"
+      "c"
+      "d"
+      "school"
+      "e"
+      "f"
+      "contact"
+      "map"
+      "g"
+      "btn";
+  }
+  .btn {
+    flex-direction: column;
+    margin: 1rem 2rem;
+  }
+}
+
+.name {
+  grid-area: a;
+}
+.surname {
+  grid-area: b;
+}
+.bloodType {
+  grid-area: c;
+}
+.age {
+  grid-area: d;
+}
+.schoolName {
+  grid-area: school;
+}
+.alergies {
+  grid-area: e;
+}
+.knownDiseases {
+  grid-area: f;
+}
+
+.profilePic {
+  grid-area: pic;
+  justify-self: center;
+}
+.isComing {
+  grid-area: g;
+}
+.emergencyContacts,
+.viewOnMap {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-content: center;
+  align-items: center;
+}
+.emergencyContacts {
+  grid-area: contact;
+}
+.viewOnMap {
+  grid-area: map;
+}
+
+.contacts {
+  text-align: center;
+}
+.contacts button {
+  padding: 0.25rem 0.5rem;
+  margin: 0.25rem 1rem;
+}
+
+.map {
+  text-align: center;
+}
+.map button {
+  padding: 0.25rem 0.5rem;
+  margin: 0.25rem 1rem;
+}
+.btn {
+  grid-area: btn;
+  display: flex;
+  justify-content: space-evenly;
+  margin-top: 1.125rem;
+}
+
+.modalContacts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+@media (max-width: 768px) {
+  .modalContacts {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+.modalContact {
+  box-shadow: 0px 0px 4px rgb(29, 7, 70);
+  justify-self: center;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-weight: 700;
+}
