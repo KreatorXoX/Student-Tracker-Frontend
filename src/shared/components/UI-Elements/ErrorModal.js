@@ -1,21 +1,27 @@
-import React from "react";
-
+import React, { useEffect, useState } from "react";
 import Button from "../FormElements/Button";
 import Modal from "./Modal";
 
 const ErrorModal = (props) => {
+  console.log("we in modal");
+  const [show, setShow] = useState(false);
+  useEffect(() => {
+    if (props.error) {
+      setShow(true);
+    }
+  }, [props.error]);
   return (
     <Modal
       onCancel={props.onClear}
       header={props.header ? props.header : "An Error Occurred!"}
-      show={!!props.error}
+      show={show}
       footer={
-        <Button large onClick={props.onClear}>
+        <Button large onClick={() => setShow(false)}>
           Okay
         </Button>
       }
     >
-      <p>{props.error}</p>
+      <p>{JSON.stringify(props.error.message)}</p>
     </Modal>
   );
 };

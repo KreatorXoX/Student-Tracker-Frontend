@@ -2,19 +2,20 @@ import React, { useContext } from "react";
 import { NavLink, Link } from "react-router-dom";
 
 import { SessContext } from "../../context/sess-context";
-import { AuthContext } from "../../context/auth-context";
+import { useAuthStore } from "../../context/authStore";
 
 import "./NavLinks.css";
 
 const NavLinks = () => {
-  const authCtx = useContext(AuthContext);
+  const userInfo = useAuthStore((state) => state.userInfo);
+  const setLogout = useAuthStore((state) => state.setLogout);
   const isActive = useContext(SessContext).isActive;
   return (
     !isActive && (
       <>
-        {authCtx.isLoggedIn && (
+        {userInfo && (
           <ul className="nav-links">
-            {authCtx.userInfo.role === "admin" && (
+            {userInfo.role === "admin" && (
               <>
                 <li>
                   <NavLink to="/buses">Buses</NavLink>
@@ -27,26 +28,26 @@ const NavLinks = () => {
                 </li>
               </>
             )}
-            {authCtx.userInfo.role === "employee" && (
+            {userInfo.role === "employee" && (
               <li>
                 <NavLink to={`/start`}>Start Session</NavLink>
               </li>
             )}
             <li>
-              <NavLink to={`/user/${authCtx.userInfo.id}`}>My Profile</NavLink>
+              <NavLink to={`/user/${userInfo.id}`}>My Profile</NavLink>
             </li>
-            {authCtx.userInfo.role !== "employee" && (
+            {userInfo.role !== "employee" && (
               <li>
                 <NavLink to="/students">Students</NavLink>
               </li>
             )}
 
-            <li onClick={authCtx.logout}>
+            <li onClick={setLogout}>
               <Link to="/">Logout</Link>
             </li>
           </ul>
         )}
-        {!authCtx.isLoggedIn && (
+        {!userInfo && (
           <ul className="nav-links">
             <li className="side-drawer-login">
               <NavLink to="/auth">Login Now</NavLink>

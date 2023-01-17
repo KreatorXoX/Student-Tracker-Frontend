@@ -12,7 +12,7 @@ import Button from "../../shared/components/FormElements/Button";
 import ErrorModal from "../../shared/components/UI-Elements/ErrorModal";
 import LoadingSpinner from "../../shared/components/UI-Elements/LoadingSpinner";
 
-import { userFormInitial } from "../../formInitials/userFormInitial";
+import { userFormInitial } from "../../shared/util/formInitials/userFormInitial";
 import {
   VALIDATOR_MINLENGTH,
   VALIDATOR_REQUIRE,

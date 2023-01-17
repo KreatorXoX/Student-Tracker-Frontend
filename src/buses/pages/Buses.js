@@ -1,9 +1,7 @@
-import React, { useState, useEffect, useContext } from "react";
+import React from "react";
 
 import BusList from "../components/BusList";
-
-import { AuthContext } from "../../shared/context/auth-context";
-import { useHttpClient } from "../../shared/hooks/http-hook";
+import { useGetBuses } from "../../api/busesApi";
 
 import Button from "../../shared/components/FormElements/Button";
 
@@ -13,39 +11,22 @@ import LoadingSpinner from "../../shared/components/UI-Elements/LoadingSpinner";
 import styles from "./Buses.module.css";
 
 const Buses = () => {
-  const authCtx = useContext(AuthContext);
-  const [loadedBuses, setLoadedBuses] = useState();
-  const { isLoading, error, sendRequest, clearError } = useHttpClient();
-
-  useEffect(() => {
-    const fetchBuses = async () => {
-      try {
-        const data = await sendRequest(
-          `${process.env.REACT_APP_BACKEND_URL}/buses/`,
-          "GET",
-          null,
-          { Authorization: "Bearer " + authCtx.token }
-        );
-        setLoadedBuses(data.buses);
-      } catch (error) {}
-    };
-
-    fetchBuses();
-  }, [sendRequest, authCtx.token]);
+  const { data, isLoading, isSuccess, isFetching, error, isError } =
+    useGetBuses();
 
   return (
     <>
-      <ErrorModal error={error} onClear={clearError} />
+      {isError && <ErrorModal error={error} />}
       <div className={styles.layout}>
         <div className={styles.addNew}>
           <Button success large to="/bus/new">
             Add New Bus
           </Button>
         </div>
-        {isLoading && <LoadingSpinner asOverlay />}
-        {!isLoading && (
+        {(isFetching || isLoading) && <LoadingSpinner asOverlay />}
+        {isSuccess && (
           <div className={styles.list}>
-            <BusList buses={loadedBuses} />
+            <BusList buses={data.buses} />
           </div>
         )}
       </div>

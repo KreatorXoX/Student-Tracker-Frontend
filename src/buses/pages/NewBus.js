@@ -10,7 +10,7 @@ import Button from "../../shared/components/FormElements/Button";
 
 import ErrorModal from "../../shared/components/UI-Elements/ErrorModal";
 
-import { busInitials } from "../../formInitials/busFormInitial";
+import { busInitials } from "../../shared/util/formInitials/busFormInitial";
 import {
   VALIDATOR_MINLENGTH,
   VALIDATOR_REQUIRE,

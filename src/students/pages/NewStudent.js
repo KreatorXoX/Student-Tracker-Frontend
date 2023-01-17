@@ -13,7 +13,7 @@ import Modal from "../../shared/components/UI-Elements/Modal";
 import ErrorModal from "../../shared/components/UI-Elements/ErrorModal";
 import LoadingSpinner from "../../shared/components/UI-Elements/LoadingSpinner";
 
-import { studentInitial } from "../../formInitials/studentFormInitial";
+import { studentInitial } from "../../shared/util/formInitials/studentFormInitial";
 import {
   VALIDATOR_REQUIRE,
   VALIDATOR_REQUIRE_SELECT,

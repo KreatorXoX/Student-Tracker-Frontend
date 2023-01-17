@@ -13,7 +13,7 @@ import Modal from "../../shared/components/UI-Elements/Modal";
 import ErrorModal from "../../shared/components/UI-Elements/ErrorModal";
 import LoadingSpinner from "../../shared/components/UI-Elements/LoadingSpinner";
 
-import { userFormInitial } from "../../formInitials/userFormInitial";
+import { userFormInitial } from "../../shared/util/formInitials/userFormInitial";
 import {
   VALIDATOR_REQUIRE,
   VALIDATOR_MINLENGTH,
@@ -209,11 +209,12 @@ const UserDetails = () => {
                     Show Students
                   </Button>
                 )}
-                {user.role === "parent" && authCtx.userInfo.role !== "parent" && (
-                  <Button to={`/student/new/${userId}`} mid success>
-                    Add Child
-                  </Button>
-                )}
+                {user.role === "parent" &&
+                  authCtx.userInfo.role !== "parent" && (
+                    <Button to={`/student/new/${userId}`} mid success>
+                      Add Child
+                    </Button>
+                  )}
               </div>
 
               <div className={styles.btn}>

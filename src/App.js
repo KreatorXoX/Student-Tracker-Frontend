@@ -2,16 +2,15 @@ import { lazy, Suspense } from "react";
 import { BrowserRouter, Switch, Route, Redirect } from "react-router-dom";
 
 import HomePage from "./HomePage";
-import Auth from "./user/pages/Auth";
+import Auth from "./auth/pages/Auth";
 
 import BusDetails from "./buses/components/BusDetails";
 import UserDetails from "./user/components/UserDetails";
 import StudentDetails from "./students/components/StudentDetails";
 import MainNavigation from "./shared/components/Navigation/MainNavigation";
 
-import { AuthContext } from "./shared/context/auth-context";
 import { SessContext } from "./shared/context/sess-context";
-import { useAuth } from "./shared/hooks/auth-hook";
+import { useAuth } from "./shared/context/authStore";
 import { useSession } from "./shared/hooks/session-hook";
 
 //import NewBus from "./buses/pages/NewBus";
@@ -37,13 +36,14 @@ const NewStudent = lazy(() => import("./students/pages/NewStudent"));
 const Students = lazy(() => import("./students/pages/Students"));
 
 function App() {
-  const { userInfo, token, login, logout } = useAuth();
   const { sessionInfo, startSession, endSession, changePresence } =
     useSession();
 
+  const isUserLoggedIn = useAuth((state) => state.isAuthenticated);
+
   let routes;
 
-  if (token) {
+  if (isUserLoggedIn) {
     routes = (
       <Switch>
         <Route path="/" exact>
@@ -99,38 +99,28 @@ function App() {
     );
   }
   return (
-    <AuthContext.Provider
+    <SessContext.Provider
       value={{
-        userInfo: userInfo,
-        token: token,
-        isLoggedIn: !!token,
-        login: login,
-        logout: logout,
+        isActive: sessionInfo.isActive,
+        students: sessionInfo.students,
+        schoolName: sessionInfo.schoolName,
+        busDriver: sessionInfo.busDriver,
+        studentHandler: sessionInfo.studentHandler,
+        date: sessionInfo.date,
+        employeeId: sessionInfo.employeeId,
+        busId: sessionInfo.busId,
+        startSess: startSession,
+        endSess: endSession,
+        changePresenceHandler: changePresence,
       }}
     >
-      <SessContext.Provider
-        value={{
-          isActive: sessionInfo.isActive,
-          students: sessionInfo.students,
-          schoolName: sessionInfo.schoolName,
-          busDriver: sessionInfo.busDriver,
-          studentHandler: sessionInfo.studentHandler,
-          date: sessionInfo.date,
-          employeeId: sessionInfo.employeeId,
-          busId: sessionInfo.busId,
-          startSess: startSession,
-          endSess: endSession,
-          changePresenceHandler: changePresence,
-        }}
-      >
-        <BrowserRouter>
-          <MainNavigation />
-          <main>
-            <Suspense>{routes}</Suspense>
-          </main>
-        </BrowserRouter>
-      </SessContext.Provider>
-    </AuthContext.Provider>
+      <BrowserRouter>
+        <MainNavigation />
+        <main>
+          <Suspense>{routes}</Suspense>
+        </main>
+      </BrowserRouter>
+    </SessContext.Provider>
   );
 }
 
