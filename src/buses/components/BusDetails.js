@@ -1,8 +1,8 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useState } from "react";
 import { useParams, useHistory } from "react-router-dom";
 
-import { AuthContext } from "../../shared/context/auth-context";
-import { useHttpClient } from "../../shared/hooks/http-hook";
+import { useDeleteBus, useGetBus, usePopulateBus } from "../../api/busesApi";
+import { useUpdateBus } from "../../api/busesApi";
 import { useForm } from "../../shared/hooks/form-hook";
 
 import Input from "../../shared/components/FormElements/Input";
@@ -22,96 +22,67 @@ import {
 import styles from "./BusDetails.module.css";
 
 const BusDetails = () => {
-  const authCtx = useContext(AuthContext);
-  const { isLoading, error, sendRequest, clearError } = useHttpClient();
-  const [busFound, setBusFound] = useState();
-  const [showNotification, setNotification] = useState(false);
-  const openNotificationHandler = () => setNotification(true);
-  const closeNotificationHandler = () => setNotification(false);
-  const deleteHandler = async () => {
-    try {
-      await sendRequest(
-        `${process.env.REACT_APP_BACKEND_URL}/buses/${busId}`,
-        "DELETE",
-        null,
-        { Authorization: "Bearer " + authCtx.token }
-      );
-    } catch (error) {}
-
-    history.replace("/buses");
-  };
-  const populateHandler = async () => {
-    try {
-      await sendRequest(
-        `${process.env.REACT_APP_BACKEND_URL}/buses/${busId}/populate`,
-        "PATCH",
-        null,
-        { Authorization: "Bearer " + authCtx.token }
-      );
-    } catch (error) {}
-  };
-
   const history = useHistory();
   const busId = useParams().busId;
 
-  useEffect(() => {
-    const fetchBus = async () => {
-      try {
-        const response = await sendRequest(
-          `${process.env.REACT_APP_BACKEND_URL}/buses/${busId}`,
-          "GET",
-          null,
-          { Authorization: "Bearer " + authCtx.token }
-        );
+  const { data, isSuccess, isLoading, error } = useGetBus(busId);
+  const { mutateAsync: updateBus } = useUpdateBus();
+  const { mutateAsync: deleteBus } = useDeleteBus();
+  const { mutateAsync: populateBus } = usePopulateBus();
 
-        setBusFound(response.bus);
-      } catch (error) {}
-    };
+  const [showNotification, setNotification] = useState(false);
+  const openNotificationHandler = () => setNotification(true);
+  const closeNotificationHandler = () => setNotification(false);
 
-    fetchBus();
-  }, [sendRequest, busId, authCtx.token]);
+  const deleteHandler = async () => {
+    await deleteBus(busId, {
+      onSuccess: () => {
+        history.push("/buses");
+      },
+    });
+  };
+  const populateHandler = async () => {
+    await populateBus(busId, {
+      onSuccess: (data) => {
+        console.log(data);
+      },
+    });
+  };
 
   const [formState, inputHandler] = useForm(busInitials, false);
 
   const formHandler = async (e) => {
     e.preventDefault();
 
-    try {
-      await sendRequest(
-        `${process.env.REACT_APP_BACKEND_URL}/buses/${busId}`,
-        "PATCH",
-        JSON.stringify({
-          schoolName: formState.inputs.schoolName.value,
-          busDriver: {
-            name:
-              formState.inputs.bName.value +
-              " " +
-              formState.inputs.bSurname.value,
-            phoneNumber: formState.inputs.bPhoneNumber.value,
-          },
-          studentHandler: {
-            name:
-              formState.inputs.hName.value +
-              " " +
-              formState.inputs.hSurname.value,
-            phoneNumber: formState.inputs.hPhoneNumber.value,
-          },
-        }),
-        {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + authCtx.token,
-        }
-      );
-    } catch (error) {}
+    const updateData = {
+      id: busId,
+      schoolName: formState.inputs.schoolName.value,
+      busDriver: {
+        name:
+          formState.inputs.bName.value + " " + formState.inputs.bSurname.value,
+        phoneNumber: formState.inputs.bPhoneNumber.value,
+      },
+      studentHandler: {
+        name:
+          formState.inputs.hName.value + " " + formState.inputs.hSurname.value,
+        phoneNumber: formState.inputs.hPhoneNumber.value,
+      },
+    };
+
+    await updateBus(updateData, {
+      onSuccess: (data) => {
+        console.log(data);
+      },
+    });
 
     history.push("/buses");
   };
 
   return (
     <>
-      <ErrorModal error={error} onClear={clearError} />
+      {error && <ErrorModal error={error} />}
       {isLoading && <LoadingSpinner asOverlay />}
-      {busFound && (
+      {isSuccess && (
         <form onSubmit={formHandler} className={styles.busForm}>
           <div className={styles.licensePlate}>
             <Input
@@ -122,7 +93,7 @@ const BusDetails = () => {
               errorText="enter a valid plate"
               onInputChange={inputHandler}
               validators={[VALIDATOR_MINLENGTH(5)]}
-              initialValue={busFound.licensePlate}
+              initialValue={data.bus.licensePlate}
               initialValid={true}
               disabled
             />
@@ -136,7 +107,7 @@ const BusDetails = () => {
               errorText="School Name Field can't be empty !"
               onInputChange={inputHandler}
               validators={[VALIDATOR_REQUIRE()]}
-              initialValue={busFound.schoolName}
+              initialValue={data.bus.schoolName}
               initialValid={true}
             />
           </div>
@@ -149,7 +120,7 @@ const BusDetails = () => {
               errorText="Name Field can't be empty !"
               onInputChange={inputHandler}
               validators={[VALIDATOR_REQUIRE()]}
-              initialValue={busFound.busDriver.name.split(" ")[0]}
+              initialValue={data.bus.busDriver.name.split(" ")[0]}
               initialValid={true}
             />
           </div>
@@ -162,7 +133,7 @@ const BusDetails = () => {
               errorText="Surname Field can't be empty !"
               onInputChange={inputHandler}
               validators={[VALIDATOR_REQUIRE()]}
-              initialValue={busFound.busDriver.name.split(" ")[1]}
+              initialValue={data.bus.busDriver.name.split(" ")[1]}
               initialValid={true}
             />
           </div>
@@ -175,7 +146,7 @@ const BusDetails = () => {
               errorText="Phone number must contain 10 digits !"
               onInputChange={inputHandler}
               validators={[VALIDATOR_MINLENGTH(13), VALIDATOR_MAXLENGTH(14)]}
-              initialValue={busFound.busDriver.phoneNumber}
+              initialValue={data.bus.busDriver.phoneNumber}
               initialValid={true}
             />
           </div>
@@ -188,7 +159,7 @@ const BusDetails = () => {
               errorText="Name Field can't be empty !"
               onInputChange={inputHandler}
               validators={[VALIDATOR_REQUIRE()]}
-              initialValue={busFound.studentHandler.name.split(" ")[0]}
+              initialValue={data.bus.studentHandler.name.split(" ")[0]}
               initialValid={true}
             />
           </div>
@@ -201,7 +172,7 @@ const BusDetails = () => {
               errorText="Surname Field can't be empty !"
               onInputChange={inputHandler}
               validators={[VALIDATOR_REQUIRE()]}
-              initialValue={busFound.studentHandler.name.split(" ")[1]}
+              initialValue={data.bus.studentHandler.name.split(" ")[1]}
               initialValid={true}
             />
           </div>
@@ -214,7 +185,7 @@ const BusDetails = () => {
               errorText="Phone number must contain 10 digits !"
               onInputChange={inputHandler}
               validators={[VALIDATOR_MINLENGTH(13), VALIDATOR_MAXLENGTH(14)]}
-              initialValue={busFound.studentHandler.phoneNumber}
+              initialValue={data.bus.studentHandler.phoneNumber}
               initialValid={true}
             />
           </div>

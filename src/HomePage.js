@@ -2,15 +2,16 @@ import React, { useContext } from "react";
 
 import Bus from "./assets/images/bus.png";
 
-import { AuthContext } from "./shared/context/auth-context";
+import { useAuth } from "./shared/context/authStore";
 import { SessContext } from "./shared/context/sess-context";
 
 import Button from "./shared/components/FormElements/Button";
 
 import styles from "./HomePage.module.css";
 const HomePage = () => {
+  const isLoggedIn = useAuth((state) => state.isAuthenticated);
   const sessCtx = useContext(SessContext);
-  const authCtx = useContext(AuthContext);
+
   return (
     <div className={styles.homePage}>
       <div className={styles.content1}>
@@ -31,7 +32,7 @@ const HomePage = () => {
             purpose (injected humour and the like).
           </p>
         </div>
-        {!authCtx.isLoggedIn && (
+        {!isLoggedIn && (
           <div className={styles.actions}>
             <Button to="/auth">Login/Register</Button>
           </div>

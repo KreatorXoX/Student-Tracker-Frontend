@@ -18,50 +18,41 @@ import {
 } from "../../shared/util/validators";
 
 import styles from "./NewBus.module.css";
+import { useCreateBus } from "../../api/busesApi";
 
 const NewBus = () => {
-  const { error, sendRequest, clearError } = useHttpClient();
+  const { mutateAsync: createBus, error } = useCreateBus();
+
   const history = useHistory();
   const [formState, inputHandler] = useForm(busInitials, false);
-  const authCtx = useContext(AuthContext);
 
   const formHandler = async (e) => {
     e.preventDefault();
 
-    try {
-      await sendRequest(
-        `${process.env.REACT_APP_BACKEND_URL}/buses`,
-        "POST",
-        JSON.stringify({
-          licensePlate: formState.inputs.licensePlate.value,
-          schoolName: formState.inputs.schoolName.value,
-          busDriver: {
-            name:
-              formState.inputs.bName.value +
-              " " +
-              formState.inputs.bSurname.value,
-            phoneNumber: formState.inputs.bPhoneNumber.value,
-          },
-          studentHandler: {
-            name:
-              formState.inputs.hName.value +
-              " " +
-              formState.inputs.hSurname.value,
-            phoneNumber: formState.inputs.hPhoneNumber.value,
-          },
-        }),
-        {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + authCtx.token,
-        }
-      );
-    } catch (error) {}
-
-    history.push("/buses");
+    const busData = {
+      licensePlate: formState.inputs.licensePlate.value,
+      schoolName: formState.inputs.schoolName.value,
+      busDriver: {
+        name:
+          formState.inputs.bName.value + " " + formState.inputs.bSurname.value,
+        phoneNumber: formState.inputs.bPhoneNumber.value,
+      },
+      studentHandler: {
+        name:
+          formState.inputs.hName.value + " " + formState.inputs.hSurname.value,
+        phoneNumber: formState.inputs.hPhoneNumber.value,
+      },
+    };
+    await createBus(busData, {
+      onSuccess: () => {
+        console.log("created new bus");
+        history.push("/buses");
+      },
+    });
   };
   return (
     <>
-      <ErrorModal error={error} onClear={clearError} />
+      {error && <ErrorModal error={error} />}
       <form onSubmit={formHandler} className={styles.busForm}>
         <div className={styles.licensePlate}>
           <Input
