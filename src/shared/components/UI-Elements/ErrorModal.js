@@ -3,17 +3,39 @@ import Button from "../FormElements/Button";
 import Modal from "./Modal";
 
 const ErrorModal = (props) => {
-  console.log("we in modal");
   const [show, setShow] = useState(false);
   useEffect(() => {
     if (props.error) {
       setShow(true);
     }
   }, [props.error]);
+
+  let errorMessage = "";
+
+  if (props.error.response) {
+    // The request was made and the server responded with a status code
+    // that falls out of the range of 2xx
+    errorMessage = props.error.response.data?.message;
+  } else if (props.error.request) {
+    // The request was made but no response was received
+    // `props.error.request` is an instance of XMLHttpRequest in the browser and an instance of
+    // http.ClientRequest in node.js
+    errorMessage = props.error.request?.statusText;
+  } else {
+    // Something happened in setting up the request that triggered an props.Error
+    errorMessage = ("Error", props.error.message);
+  }
+
   return (
     <Modal
       onCancel={props.onClear}
-      header={props.header ? props.header : "An Error Occurred!"}
+      header={
+        props.error.message
+          ? props.error.message
+          : props.header
+          ? props.header
+          : "An Error Occurred!"
+      }
       show={show}
       footer={
         <Button large onClick={() => setShow(false)}>
@@ -21,7 +43,7 @@ const ErrorModal = (props) => {
         </Button>
       }
     >
-      <p>{JSON.stringify(props.error.message)}</p>
+      <p>{errorMessage}</p>
     </Modal>
   );
 };

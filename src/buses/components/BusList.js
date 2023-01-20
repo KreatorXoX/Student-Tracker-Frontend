@@ -1,39 +1,40 @@
 import React from "react";
-
 import BusAvatar from "./BusAvatar";
+
 import { useGetBuses } from "../../api/busesApi";
-import { useSearch } from "../../shared/hooks/search-hook";
 
+import { useSearch } from "../../shared/context/searchStore";
 import SearchBar from "../../shared/components/UI-Elements/SearchBar";
-
-import styles from "./BusList.module.css";
 import LoadingSpinner from "../../shared/components/UI-Elements/LoadingSpinner";
 
+import styles from "./BusList.module.css";
+
 const BusList = () => {
-  const { data, isLoading } = useGetBuses();
+  const search = useSearch((state) => state.search);
+  const { data, isLoading, isSuccess, isFetching } = useGetBuses();
 
-  // implement searchbar using zustand store!!
-  const { searchState, busHandler } = useSearch(data.buses);
+  let content;
 
-  if (!data.buses || data.buses.length === 0) {
-    return (
-      <div>
-        <h2 style={{ color: "white" }}>No Buses Found! You can create one</h2>
+  if (isLoading || isFetching) content = <LoadingSpinner asOverlay />;
+  if (isSuccess)
+    content = (
+      <div className={styles.busList}>
+        {data.buses
+          ?.filter((bus) =>
+            bus.schoolName?.toLowerCase().includes(search.toLowerCase())
+          )
+          .map((bus) => (
+            <BusAvatar key={bus.id} id={bus.id} schoolName={bus.schoolName} />
+          ))}
       </div>
     );
-  }
+
   return (
     <>
       <div className={styles.searchBar}>
-        <SearchBar onInputChange={busHandler} />
+        <SearchBar />
       </div>
-      <div className={styles.busList}>
-        {isLoading && <LoadingSpinner asOverlay />}
-        {data.buses.length === 0 && <p>No Results</p>}
-        {data.buses.map((bus) => (
-          <BusAvatar key={bus.id} id={bus.id} schoolName={bus.schoolName} />
-        ))}
-      </div>
+      {content}
     </>
   );
 };

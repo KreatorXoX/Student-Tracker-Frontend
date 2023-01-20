@@ -1,14 +1,11 @@
-import React, { useContext } from "react";
+import React from "react";
 import { useHistory } from "react-router-dom";
 
-import { AuthContext } from "../../shared/context/auth-context";
-import { useHttpClient } from "../../shared/hooks/http-hook";
-import { useForm } from "../../shared/hooks/form-hook";
+import { useCreateBus } from "../../api/busesApi";
 
+import { useForm } from "../../shared/hooks/form-hook";
 import Input from "../../shared/components/FormElements/Input";
 import Button from "../../shared/components/FormElements/Button";
-
-import ErrorModal from "../../shared/components/UI-Elements/ErrorModal";
 
 import { busInitials } from "../../shared/util/formInitials/busFormInitial";
 import {
@@ -18,10 +15,9 @@ import {
 } from "../../shared/util/validators";
 
 import styles from "./NewBus.module.css";
-import { useCreateBus } from "../../api/busesApi";
 
 const NewBus = () => {
-  const { mutateAsync: createBus, error } = useCreateBus();
+  const { mutateAsync: createBus } = useCreateBus();
 
   const history = useHistory();
   const [formState, inputHandler] = useForm(busInitials, false);
@@ -45,14 +41,13 @@ const NewBus = () => {
     };
     await createBus(busData, {
       onSuccess: () => {
-        console.log("created new bus");
         history.push("/buses");
       },
     });
   };
+
   return (
     <>
-      {error && <ErrorModal error={error} />}
       <form onSubmit={formHandler} className={styles.busForm}>
         <div className={styles.licensePlate}>
           <Input

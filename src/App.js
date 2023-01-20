@@ -1,5 +1,6 @@
 import { lazy, Suspense } from "react";
 import { BrowserRouter, Switch, Route, Redirect } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
 
 import HomePage from "./HomePage";
 import Auth from "./auth/pages/Auth";
@@ -10,8 +11,11 @@ import StudentDetails from "./students/components/StudentDetails";
 import MainNavigation from "./shared/components/Navigation/MainNavigation";
 
 import { SessContext } from "./shared/context/sess-context";
-import { useAuth } from "./shared/context/authStore";
 import { useSession } from "./shared/hooks/session-hook";
+
+import PrivateRoute from "./shared/util/PrivateRoute";
+import AdminRoute from "./shared/util/AdminRoute";
+import EmployeeRoute from "./shared/util/EmployeeRoute";
 
 //import NewBus from "./buses/pages/NewBus";
 //import Buses from "./buses/pages/Buses";
@@ -39,65 +43,53 @@ function App() {
   const { sessionInfo, startSession, endSession, changePresence } =
     useSession();
 
-  const isUserLoggedIn = useAuth((state) => state.isAuthenticated);
-
   let routes;
 
-  if (isUserLoggedIn) {
-    routes = (
-      <Switch>
-        <Route path="/" exact>
-          <HomePage />
-        </Route>
-        <Route path="/start" exact>
-          <BusSession />
-        </Route>
-        <Route path="/buses" exact>
-          <Buses />
-        </Route>
-        <Route path="/bus/new" exact>
-          <NewBus />
-        </Route>
-        <Route path="/bus/:busId" exact>
-          <BusDetails />
-        </Route>
-        <Route path="/users/:role" exact>
-          <Users />
-        </Route>
-        <Route path="/user/new" exact>
-          <NewUser />
-        </Route>
-        <Route path="/user/:userId" exact>
-          <UserDetails />
-        </Route>
-        <Route path="/students">
-          <Students />
-        </Route>
-        <Route path="/busStudents">
-          <StudentsInTheBus />
-        </Route>
-        <Route path="/student/:stdId" exact>
-          <StudentDetails />
-        </Route>
-        <Route path="/student/new/:parentId" exact>
-          <NewStudent />
-        </Route>
-        <Redirect to="/" />
-      </Switch>
-    );
-  } else {
-    routes = (
-      <Switch>
-        <Route path="/" exact>
-          <HomePage />
-        </Route>
-        <Route path="/auth" exact>
-          <Auth />
-        </Route>
-        <Redirect to="/auth" />
-      </Switch>
-    );
-  }
+  routes = (
+    <Switch>
+      <Route path="/" exact>
+        <HomePage />
+      </Route>
+      <EmployeeRoute path="/start" exact>
+        <BusSession />
+      </EmployeeRoute>
+      <AdminRoute path="/buses" exact>
+        <Buses />
+      </AdminRoute>
+      <AdminRoute path="/bus/new" exact>
+        <NewBus />
+      </AdminRoute>
+      <PrivateRoute path="/bus/:busId" exact>
+        <BusDetails />
+      </PrivateRoute>
+      <AdminRoute path="/users/:role" exact>
+        <Users />
+      </AdminRoute>
+      <AdminRoute path="/user/new" exact>
+        <NewUser />
+      </AdminRoute>
+      <PrivateRoute path="/user/:userId" exact>
+        <UserDetails />
+      </PrivateRoute>
+      <AdminRoute path="/students">
+        <Students />
+      </AdminRoute>
+      <EmployeeRoute path="/busStudents">
+        <StudentsInTheBus />
+      </EmployeeRoute>
+      <PrivateRoute path="/student/:stdId" exact>
+        <StudentDetails />
+      </PrivateRoute>
+      <AdminRoute path="/student/new/:parentId" exact>
+        <NewStudent />
+      </AdminRoute>
+      <Route path="/auth" exact>
+        <Auth />
+      </Route>
+      <Redirect to="/" />
+    </Switch>
+  );
+
   return (
     <SessContext.Provider
       value={{
@@ -117,6 +109,7 @@ function App() {
       <BrowserRouter>
         <MainNavigation />
         <main>
+          <Toaster />
           <Suspense>{routes}</Suspense>
         </main>
       </BrowserRouter>

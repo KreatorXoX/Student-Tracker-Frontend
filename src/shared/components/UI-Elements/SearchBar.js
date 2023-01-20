@@ -1,29 +1,25 @@
 import React from "react";
-
+import { useSearch } from "../../context/searchStore";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 
 import styles from "./SearchBar.module.css";
 
-const SearchBar = ({ onInputChange }) => {
-  const handleSubmit = (e) => {
-    e.preventDefault();
-  };
-  const inputChangeHandler = (e) => {
-    onInputChange(e.target.value.toLowerCase());
-  };
-
+const SearchBar = () => {
+  const setSearch = useSearch((state) => state.setSearch);
   return (
-    <form className={styles.search} onSubmit={handleSubmit}>
+    <form className={styles.search}>
       <input
         className={styles["search__input"]}
         type="text"
         id="search"
-        onChange={inputChangeHandler}
+        onChange={(e) => {
+          setSearch(e.target.value);
+        }}
       />
-      <button className={styles["search__action"]}>
+      <span className={styles["search__action"]}>
         <FontAwesomeIcon icon={faMagnifyingGlass} />
-      </button>
+      </span>
     </form>
   );
 };

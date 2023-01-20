@@ -16,6 +16,13 @@ export const useAuth = create(
           role: role,
           persist: true,
         })),
+      resetAuth: () =>
+        set((state) => ({
+          ...state,
+          isAuthenticated: false,
+          role: null,
+          persist: false,
+        })),
     }),
     {
       name: "persist-auth",
@@ -38,7 +45,7 @@ export const useAuthStore = create(
           const decodedToken = jwtDecode(token);
 
           user = {
-            id: decodedToken.id,
+            id: decodedToken.userId,
             role: decodedToken.role,
             busId: decodedToken?.busId,
           };
@@ -46,7 +53,6 @@ export const useAuthStore = create(
           throw new Error("Invalid Token");
         }
         useAuth.getState().setAuth(user.role);
-        console.log("store token is : ", token);
         return {
           ...state,
           userInfo: user,
@@ -55,7 +61,7 @@ export const useAuthStore = create(
       }),
     setLogout: () =>
       set((state) => {
-        useAuth.getState().setAuth(null);
+        useAuth.getState().resetAuth();
         return {
           ...state,
           userInfo: {
@@ -72,6 +78,7 @@ export const useAuthStore = create(
 const refresh = useAuth.getState().persist;
 const refreshUrl = "http://localhost:5000/api/auth/refresh";
 if (refresh) {
+  console.log("refresh send");
   axios
     .get(refreshUrl, {
       withCredentials: true,

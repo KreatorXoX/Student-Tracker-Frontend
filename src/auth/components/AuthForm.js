@@ -1,28 +1,23 @@
 import React from "react";
 import { useHistory } from "react-router-dom";
-import { useAuthStore } from "../../shared/context/authStore";
-
 import Logo from "../../assets/images/busLogo.png";
-import { useForm } from "../../shared/hooks/form-hook";
 
+import { useLogin } from "../../api/authApi";
+
+import { useForm } from "../../shared/hooks/form-hook";
 import Input from "../../shared/components/FormElements/Input";
 import Button from "../../shared/components/FormElements/Button";
-
 import ErrorModal from "../../shared/components/UI-Elements/ErrorModal";
 import LoadingSpinner from "../../shared/components/UI-Elements/LoadingSpinner";
-
 import {
   VALIDATOR_EMAIL,
   VALIDATOR_MINLENGTH,
 } from "../../shared/util/validators";
 
 import styles from "./AuthForm.module.css";
-import { useLogin } from "../../api/authApi";
-import jwtDecode from "jwt-decode";
 
 const AuthForm = () => {
-  const { mutateAsync: logUser, isError, isLoading, error } = useLogin();
-  const login = useAuthStore((state) => state.setLogin);
+  const { mutateAsync: login, isError, isLoading, error } = useLogin();
 
   const history = useHistory();
 
@@ -42,27 +37,21 @@ const AuthForm = () => {
 
   const formHandler = async (e) => {
     e.preventDefault();
-    await logUser(
+    await login(
       {
         email: formState.inputs.email.value,
         password: formState.inputs.password.value,
       },
       {
-        onSuccess: (data) => {
-          try {
-            login(data.accessToken);
-          } catch (error) {
-            console.log(error);
-          }
-        },
         onSettled: (data) => {
-          const userInfo = jwtDecode(data.accessToken);
-          if (userInfo.role === "admin") {
+          const { role, id } = data;
+          if (role === "admin") {
+            console.log("push to buses");
             history.push("/buses");
-          } else if (userInfo.role === "employee") {
+          } else if (role === "employee") {
             history.push("/start");
           } else {
-            history.push(`/user/${userInfo.userId}`);
+            history.push(`/user/${id}`);
           }
         },
       }

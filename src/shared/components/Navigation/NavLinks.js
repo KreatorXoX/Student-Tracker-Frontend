@@ -5,15 +5,22 @@ import { SessContext } from "../../context/sess-context";
 import { useAuthStore } from "../../context/authStore";
 
 import "./NavLinks.css";
+import { useLogout } from "../../../api/authApi";
 
 const NavLinks = () => {
   const userInfo = useAuthStore((state) => state.userInfo);
   const setLogout = useAuthStore((state) => state.setLogout);
   const isActive = useContext(SessContext).isActive;
+  const { mutateAsync: logoutUser } = useLogout();
+  const logoutHandler = async () => {
+    await logoutUser({}, { onSuccess: (message) => console.log(message) });
+    setLogout();
+  };
+
   return (
     !isActive && (
       <>
-        {userInfo && (
+        {userInfo?.id && (
           <ul className="nav-links">
             {userInfo.role === "admin" && (
               <>
@@ -42,7 +49,7 @@ const NavLinks = () => {
               </li>
             )}
 
-            <li onClick={setLogout}>
+            <li onClick={logoutHandler}>
               <Link to="/">Logout</Link>
             </li>
           </ul>

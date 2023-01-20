@@ -1,6 +1,7 @@
 import { axiosClient } from "./axios";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "../shared/context/authStore";
+import { ToastError, ToastSuccess } from "../shared/util/toastAlerts";
 
 // Get Req
 const getBuses = async () => {
@@ -13,7 +14,13 @@ const getBuses = async () => {
 };
 
 export const useGetBuses = () =>
-  useQuery({ queryFn: getBuses, queryKey: ["buses"] });
+  useQuery({
+    queryFn: getBuses,
+    queryKey: ["buses"],
+    onError: (err) => {
+      ToastError(err);
+    },
+  });
 
 const getBusById = async (id) => {
   const response = await axiosClient.get(`buses/${id}`, {
@@ -25,7 +32,13 @@ const getBusById = async (id) => {
 };
 
 export const useGetBus = (id) =>
-  useQuery({ queryFn: () => getBusById(id), queryKey: ["bus"] });
+  useQuery({
+    queryFn: () => getBusById(id),
+    queryKey: ["bus"],
+    onError: (err) => {
+      ToastError(err);
+    },
+  });
 
 // Post Req
 const createBus = async (busData) => {
@@ -43,6 +56,10 @@ export const useCreateBus = () => {
     mutationFn: (data) => createBus(data),
     onSuccess: () => {
       queryClient.invalidateQueries(["buses"]);
+      ToastSuccess("New Bus Created Successfuly");
+    },
+    onError: (err) => {
+      ToastError(err);
     },
   });
 };
@@ -64,6 +81,10 @@ export const useUpdateBus = () => {
     mutationFn: (id, data) => updateBus(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries(["bus"]);
+      ToastSuccess("Bus updated Successfully");
+    },
+    onError: (err) => {
+      ToastError(err);
     },
   });
 };
@@ -89,6 +110,10 @@ export const usePopulateBus = () => {
     mutationFn: (id) => populateBus(id),
     onSuccess: () => {
       queryClient.invalidateQueries(["bus"]);
+      ToastSuccess("Bus populated Successfully");
+    },
+    onError: (err) => {
+      ToastError(err);
     },
   });
 };
@@ -110,6 +135,10 @@ export const useDeleteBus = () => {
     mutationFn: (id) => deleteBus(id),
     onSuccess: () => {
       queryClient.invalidateQueries(["buses"]);
+      ToastSuccess("Bus deleted Successfully");
+    },
+    onError: (err) => {
+      ToastError(err);
     },
   });
 };
