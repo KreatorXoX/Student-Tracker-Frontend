@@ -1,20 +1,21 @@
 import React, { useContext } from "react";
 import { NavLink, Link } from "react-router-dom";
 
+import { useLogout } from "../../../api/authApi";
+
 import { SessContext } from "../../context/sess-context";
 import { useAuthStore } from "../../context/authStore";
 
 import "./NavLinks.css";
-import { useLogout } from "../../../api/authApi";
 
 const NavLinks = () => {
   const userInfo = useAuthStore((state) => state.userInfo);
-  const setLogout = useAuthStore((state) => state.setLogout);
   const isActive = useContext(SessContext).isActive;
+
   const { mutateAsync: logoutUser } = useLogout();
+
   const logoutHandler = async () => {
-    await logoutUser({}, { onSuccess: (message) => console.log(message) });
-    setLogout();
+    await logoutUser();
   };
 
   return (

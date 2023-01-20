@@ -1,6 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { useAuthStore } from "../shared/context/authStore";
 import { axiosClient } from "./axios";
+import { ToastSuccess, ToastError } from "../shared/util/toastAlerts";
 
 const loginHandler = async (credentials) => {
   const response = await axiosClient.post("/auth/login", credentials);
@@ -14,11 +15,12 @@ export const useLogin = () =>
       try {
         useAuthStore.getState().setLogin(data.accessToken);
       } catch (error) {
-        console.log(error);
+        ToastError(error);
       }
+      ToastSuccess("User Logged In !");
     },
     onError: (error) => {
-      console.log(error);
+      ToastError(error);
     },
   });
 
@@ -34,4 +36,16 @@ const logoutHandler = async () => {
   );
 };
 
-export const useLogout = () => useMutation({ mutationFn: logoutHandler });
+export const useLogout = () =>
+  useMutation({
+    mutationFn: logoutHandler,
+    onSuccess: () => {
+      ToastSuccess("User Logged Out !");
+    },
+    onError: (error) => {
+      ToastError(error);
+    },
+    onSettled: () => {
+      useAuthStore.getState().setLogout();
+    },
+  });

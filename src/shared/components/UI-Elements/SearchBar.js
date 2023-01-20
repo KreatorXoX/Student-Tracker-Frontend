@@ -1,7 +1,8 @@
 import React from "react";
-import { useSearch } from "../../context/searchStore";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+
+import { useSearch } from "../../context/searchStore";
 
 import styles from "./SearchBar.module.css";
 

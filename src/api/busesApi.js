@@ -23,7 +23,7 @@ export const useGetBuses = () =>
   });
 
 const getBusById = async (id) => {
-  const response = await axiosClient.get(`buses/${id}`, {
+  const response = await axiosClient.get(`/buses/${id}`, {
     headers: {
       Authorization: `Bearer ${useAuthStore.getState().token}`,
     },
@@ -34,7 +34,7 @@ const getBusById = async (id) => {
 export const useGetBus = (id) =>
   useQuery({
     queryFn: () => getBusById(id),
-    queryKey: ["bus"],
+    queryKey: [`bus-${id}`],
     onError: (err) => {
       ToastError(err);
     },
@@ -42,7 +42,7 @@ export const useGetBus = (id) =>
 
 // Post Req
 const createBus = async (busData) => {
-  const response = await axiosClient.post("buses", busData, {
+  const response = await axiosClient.post("/buses", busData, {
     headers: {
       Authorization: `Bearer ${useAuthStore.getState().token}`,
     },
@@ -66,7 +66,7 @@ export const useCreateBus = () => {
 
 // Patch Req
 const updateBus = async ({ id, ...restProps }) => {
-  const response = await axiosClient.patch(`buses/${id}`, restProps, {
+  const response = await axiosClient.patch(`/buses/${id}`, restProps, {
     headers: {
       Authorization: `Bearer ${useAuthStore.getState().token}`,
     },
@@ -78,9 +78,9 @@ export const useUpdateBus = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id, data) => updateBus(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries(["bus"]);
+    mutationFn: (data) => updateBus(data),
+    onSuccess: ({ bus }) => {
+      queryClient.invalidateQueries([`bus-${bus.id}`]);
       ToastSuccess("Bus updated Successfully");
     },
     onError: (err) => {
@@ -92,7 +92,7 @@ export const useUpdateBus = () => {
 // Patch Req for Populating Bus
 const populateBus = async (id) => {
   const response = await axiosClient.patch(
-    `buses/populate/${id}`,
+    `/buses/populate/${id}`,
     {},
     {
       headers: {
@@ -108,8 +108,8 @@ export const usePopulateBus = () => {
 
   return useMutation({
     mutationFn: (id) => populateBus(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries(["bus"]);
+    onSuccess: ({ id }) => {
+      queryClient.invalidateQueries([`bus-${id}`]);
       ToastSuccess("Bus populated Successfully");
     },
     onError: (err) => {
@@ -120,7 +120,7 @@ export const usePopulateBus = () => {
 
 // Delete Req
 const deleteBus = async (id) => {
-  const response = await axiosClient.delete(`buses/${id}`, {
+  const response = await axiosClient.delete(`/buses/${id}`, {
     headers: {
       Authorization: `Bearer ${useAuthStore.getState().token}`,
     },
@@ -133,9 +133,9 @@ export const useDeleteBus = () => {
 
   return useMutation({
     mutationFn: (id) => deleteBus(id),
-    onSuccess: () => {
+    onSuccess: ({ message }) => {
       queryClient.invalidateQueries(["buses"]);
-      ToastSuccess("Bus deleted Successfully");
+      ToastSuccess(message);
     },
     onError: (err) => {
       ToastError(err);

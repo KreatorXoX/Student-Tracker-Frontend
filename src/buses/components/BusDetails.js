@@ -40,11 +40,7 @@ const BusDetails = () => {
     });
   };
   const populateHandler = async () => {
-    await populateBus(busId, {
-      onSuccess: (data) => {
-        console.log(data);
-      },
-    });
+    await populateBus(busId);
   };
 
   const [formState, inputHandler] = useForm(busInitials, false);
@@ -67,11 +63,7 @@ const BusDetails = () => {
       },
     };
 
-    await updateBus(updateData, {
-      onSuccess: (data) => {
-        console.log(data);
-      },
-    });
+    await updateBus(updateData);
 
     history.push("/buses");
   };
