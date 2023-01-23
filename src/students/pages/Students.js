@@ -1,75 +1,44 @@
-import React, { useContext, useState, useEffect } from "react";
+import React from "react";
 import { useLocation } from "react-router-dom";
 
 import StudentList from "../components/StudentList";
 
-import { AuthContext } from "../../shared/context/auth-context";
-import { useHttpClient } from "../../shared/hooks/http-hook";
-
-import ErrorModal from "../../shared/components/UI-Elements/ErrorModal";
+import { useGetStudents } from "../../api/studentApi";
+import { useAuthStore } from "../../shared/context/authStore";
 import LoadingSpinner from "../../shared/components/UI-Elements/LoadingSpinner";
 
 import styles from "./Students.module.css";
 
 const Students = () => {
-  const { isLoading, error, sendRequest, clearError } = useHttpClient();
-  const [students, setStudents] = useState();
-  const authCtx = useContext(AuthContext);
+  const userInfo = useAuthStore((state) => state.userInfo);
   const location = useLocation();
 
   let fetchId;
-  let fetchRole;
+  let fetchBy;
 
   const pathArray = location.pathname.split("/");
 
   if (pathArray.length > 2) {
     fetchId = pathArray[3];
-    fetchRole = pathArray[2];
+    fetchBy = pathArray[2];
   }
 
-  useEffect(() => {
-    const fetchStudents = async () => {
-      let whichStudents;
-      if (authCtx.userInfo.role === "parent") {
-        whichStudents = `parent/${authCtx.userInfo.id}`;
-      }
+  if (userInfo.role === "parent") {
+    fetchBy = userInfo.role;
+    fetchId = userInfo.id;
+  }
 
-      if (authCtx.userInfo.role === "employee") {
-        whichStudents = `bus/${authCtx.userInfo.busId}`;
-      }
+  const { data, isLoading } = useGetStudents(fetchBy, fetchId);
 
-      if (authCtx.userInfo.role === "admin") {
-        if (fetchRole === "bus") {
-          whichStudents = `bus/${fetchId}`;
-        } else if (fetchRole === "parent") {
-          whichStudents = `parent/${fetchId}`;
-        } else {
-          whichStudents = "";
-        }
-      }
-
-      try {
-        const data = await sendRequest(
-          `${process.env.REACT_APP_BACKEND_URL}/students/${whichStudents}`,
-          "GET",
-          null,
-          { Authorization: "Bearer " + authCtx.token }
-        );
-
-        setStudents(data.students);
-      } catch (error) {}
-    };
-    fetchStudents();
-  }, [sendRequest, authCtx.userInfo, authCtx.token, fetchId, fetchRole]);
-
+  // console.log(fetchBy, fetchId);
+  // console.log(data);
   return (
     <>
-      <ErrorModal error={error} onClear={clearError} />
       <div className={styles.layout}>
         {isLoading && <LoadingSpinner asOverlay />}
-        {!isLoading && !error && students && (
+        {!isLoading && (
           <div className={styles.list}>
-            <StudentList students={students} />
+            <StudentList students={data.students} />
           </div>
         )}
       </div>

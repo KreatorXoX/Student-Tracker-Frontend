@@ -1,41 +1,28 @@
 import React, { useState, useContext, useEffect } from "react";
 
-import { AuthContext } from "../../shared/context/auth-context";
+import { useStudentStatus, useStudentLocation } from "../../api/studentApi";
+
 import { SessContext } from "../../shared/context/sess-context";
-import { useHttpClient } from "../../shared/hooks/http-hook";
-
 import Button from "../../shared/components/FormElements/Button";
-
 import Card from "../../shared/components/UI-Elements/Card";
-import ErrorModal from "../../shared/components/UI-Elements/ErrorModal";
 import LoadingSpinner from "../../shared/components/UI-Elements/LoadingSpinner";
 
 const BusStudent = ({ name, id, image, isOnTheBus }) => {
   const sessCtx = useContext(SessContext);
-  const authCtx = useContext(AuthContext);
+
   const [presence, setPresence] = useState(isOnTheBus);
-  const { isLoading, error, sendRequest, clearError } = useHttpClient();
+
+  const { mutateAsync: updatePresence, isLoading: statusIsLoading } =
+    useStudentStatus();
+  const { mutateAsync: updateLocation, isLoading: locationIsLoading } =
+    useStudentLocation();
 
   const presenceHandler = async (state) => {
-    try {
-      await sendRequest(
-        `${process.env.REACT_APP_BACKEND_URL}/students/${id}/onTheBus`,
-        "PATCH",
-        JSON.stringify({ state: state }),
-        {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + authCtx.token,
-        }
-      );
-    } catch (error) {}
+    await updatePresence({ id, state });
 
     sessCtx.changePresenceHandler(id, state);
 
-    if (state) {
-      setPresence(true);
-    } else {
-      setPresence(false);
-    }
+    setPresence(state);
   };
 
   useEffect(() => {
@@ -49,32 +36,24 @@ const BusStudent = ({ name, id, image, isOnTheBus }) => {
     }
 
     const successCB = async (position) => {
-      const location = {
-        lat: position.coords.latitude,
-        lng: position.coords.longitude,
+      const data = {
+        id: id,
+        location: {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        },
       };
 
-      try {
-        await sendRequest(
-          `${process.env.REACT_APP_BACKEND_URL}/students/${id}/location`,
-          "PATCH",
-          JSON.stringify(location),
-          {
-            "Content-Type": "application/json",
-            Authorization: "Bearer " + authCtx.token,
-          }
-        );
-      } catch (error) {}
+      await updateLocation(data);
     };
 
     return () => clearInterval(sendLocation);
-  }, [sessCtx.isActive, presence, id, sendRequest, authCtx.token]);
+  }, [sessCtx.isActive, presence, id, updateLocation]);
 
   return (
     <div>
-      <ErrorModal error={error} onClear={clearError} />
-      {isLoading && <LoadingSpinner />}
-      {!isLoading && !error && (
+      {(statusIsLoading || locationIsLoading) && <LoadingSpinner />}
+      {!statusIsLoading && !statusIsLoading && (
         <Card
           style={{ opacity: presence ? "1" : "0.4" }}
           image={image}

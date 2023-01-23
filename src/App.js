@@ -71,9 +71,9 @@ function App() {
       <PrivateRoute path="/user/:userId" exact>
         <UserDetails />
       </PrivateRoute>
-      <AdminRoute path="/students">
+      <PrivateRoute path="/students">
         <Students />
-      </AdminRoute>
+      </PrivateRoute>
       <EmployeeRoute path="/busStudents">
         <StudentsInTheBus />
       </EmployeeRoute>

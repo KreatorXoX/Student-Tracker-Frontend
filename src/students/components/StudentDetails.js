@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useParams, useHistory } from "react-router-dom";
 
+import { useAuth } from "../../shared/context/authStore";
+import { useGetStudent } from "../../api/studentApi";
+import { useGetBuses } from "../../api/busesApi";
 import { AuthContext } from "../../shared/context/auth-context";
 import { useHttpClient } from "../../shared/hooks/http-hook";
 import { useForm } from "../../shared/hooks/form-hook";
@@ -32,9 +35,14 @@ import {
 import styles from "./StudentDetails.module.css";
 
 const StudentDetails = () => {
+  const history = useHistory();
+  const stdId = useParams().stdId;
+  const role = useAuth((state) => state.role);
   const authCtx = useContext(AuthContext);
+  const { data, isLoading, isSuccess } = useGetStudent(stdId);
+  const { data: buses } = useGetBuses();
   const [formState, inputHandler] = useForm(studentInitial, false);
-  const { isLoading, error, sendRequest, clearError } = useHttpClient();
+  const { error, sendRequest, clearError } = useHttpClient();
   const [student, setStudent] = useState();
   const [isComing, setIsComing] = useState();
   const [selectOptions, setSelectOptions] = useState([]);
@@ -42,9 +50,6 @@ const StudentDetails = () => {
   const [showContacts, setShowContacts] = useState(false);
   const [showMap, setShowMap] = useState(false);
   const [showNotification, setNotification] = useState(false);
-
-  const history = useHistory();
-  const stdId = useParams().stdId;
 
   const openContactsHandler = () => setShowContacts(true);
   const closeContactsHandler = () => setShowContacts(false);
@@ -54,59 +59,25 @@ const StudentDetails = () => {
   const closeNotificationHandler = () => setNotification(false);
 
   const deleteStudentHandler = async () => {
-    try {
-      await sendRequest(
-        `${process.env.REACT_APP_BACKEND_URL}/students/${stdId}`,
-        "DELETE",
-        null,
-        {
-          Authorization: "Bearer " + authCtx.token,
-        }
-      );
-    } catch (error) {}
+    //delete student
     setNotification(false);
     history.push("/students");
   };
 
-  useEffect(() => {
-    const fetchStudent = async () => {
-      try {
-        const studentData = await sendRequest(
-          `${process.env.REACT_APP_BACKEND_URL}/students/${stdId}`,
-          "GET",
-          null,
-          { Authorization: "Bearer " + authCtx.token }
-        );
-
-        if (authCtx.userInfo.role === "admin") {
-          const busData = await sendRequest(
-            `${process.env.REACT_APP_BACKEND_URL}/buses`,
-            "GET",
-            null,
-            { Authorization: "Bearer " + authCtx.token }
-          );
-
-          setSelectOptions(
-            busData.buses.map((bus) => {
-              if (bus.capacity > 0)
-                return <option key={bus.id}>{bus.schoolName}</option>;
-              return null;
-            })
-          );
-        } else {
-          setSelectOptions([
-            <option key={studentData.student.id}>
-              {studentData.student.schoolName}
-            </option>,
-          ]);
-        }
-
-        setStudent(studentData.student);
-        setIsComing(studentData.student.isComing);
-      } catch (error) {}
-    };
-    fetchStudent();
-  }, [sendRequest, stdId, authCtx.token, authCtx.userInfo.role]);
+  if (isSuccess) {
+    if (role === "admin") {
+      const options = buses.buses.map((bus) => (
+        <option key={bus.id}>{bus.schoolName}</option>
+      ));
+      setSelectOptions(options);
+    } else {
+      setSelectOptions([
+        <option key={data.student.id}>{data.student.schoolName}</option>,
+      ]);
+    }
+    setStudent(data.student);
+    setIsComing(data.student.isComing);
+  }
 
   const formHandler = async (e) => {
     e.preventDefault();
@@ -119,18 +90,7 @@ const StudentDetails = () => {
       knownDiseases: formState.inputs.knownDiseases.value.split(","),
       isComing,
     };
-    try {
-      await sendRequest(
-        `${process.env.REACT_APP_BACKEND_URL}/students/${stdId}`,
-        "PATCH",
-        JSON.stringify(updatedStudent),
-        {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + authCtx.token,
-        }
-      );
-    } catch (error) {}
-
+    // updateSTudent
     history.push("/students");
   };
 
@@ -272,7 +232,7 @@ const StudentDetails = () => {
               )}
               {!student.isOnTheBus && student.wasOnTheBus && (
                 <p style={{ color: "red", cursor: "default" }}>
-                  *Child is not in the Bus
+                  *Child left the bus!
                 </p>
               )}
               {!student.isOnTheBus && !student.wasOnTheBus && (

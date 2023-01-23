@@ -1,36 +1,35 @@
 import React from "react";
 
 import UserAvatar from "./UserAvatar";
-
-import { useSearch } from "../../shared/hooks/search-hook";
-
+import { useSearch } from "../../shared/context/searchStore";
 import SearchBar from "../../shared/components/UI-Elements/SearchBar";
+import { useGetUsersByRole } from "../../api/usersApi";
 
 import styles from "./UserList.module.css";
+import LoadingSpinner from "../../shared/components/UI-Elements/LoadingSpinner";
 
-const UserList = ({ users }) => {
-  const { searchState, userHandler } = useSearch(users);
+const UserList = ({ role }) => {
+  const { data, isSuccess, isLoading } = useGetUsersByRole(role);
+  const search = useSearch((state) => state.search);
 
-  if (!users || users.length === 0) {
-    return (
-      <div>
-        <h2 style={{ color: "white" }}>No users Found! You can create one</h2>
-      </div>
-    );
-  }
   return (
     <>
-      <SearchBar onInputChange={userHandler} />
+      {isLoading && <LoadingSpinner asOverlay />}
+      <SearchBar />
       <div className={styles.userlist}>
-        {searchState.searchedData.length === 0 && <p>No Results</p>}
-        {searchState.searchedData.map((user) => (
-          <UserAvatar
-            key={user.id}
-            id={user.id}
-            name={user.name}
-            image={user.image}
-          />
-        ))}
+        {isSuccess &&
+          data?.users
+            ?.filter((user) =>
+              user.name.toLowerCase().includes(search.toLowerCase())
+            )
+            .map((user) => (
+              <UserAvatar
+                key={user.id}
+                id={user.id}
+                name={user.name}
+                image={user.image.url}
+              />
+            ))}
       </div>
     </>
   );

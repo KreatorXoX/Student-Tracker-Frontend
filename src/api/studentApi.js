@@ -4,8 +4,8 @@ import { useAuthStore } from "../shared/context/authStore";
 import { ToastError, ToastSuccess } from "../shared/util/toastAlerts";
 
 // Get Req
-const getStudents = async () => {
-  const response = await axiosClient.get("/students", {
+const getStudents = async (by, id) => {
+  const response = await axiosClient.get(`/students?by=${by}&id=${id}`, {
     headers: {
       Authorization: `Bearer ${useAuthStore.getState().token}`,
     },
@@ -13,9 +13,9 @@ const getStudents = async () => {
   return response.data;
 };
 
-export const useGetStudents = () =>
+export const useGetStudents = (by, id) =>
   useQuery({
-    queryFn: getStudents,
+    queryFn: () => getStudents(by, id),
     queryKey: ["students"],
     onError: (err) => {
       ToastError(err);
