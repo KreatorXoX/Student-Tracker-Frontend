@@ -46,7 +46,6 @@ const AuthForm = () => {
         onSettled: (data) => {
           const { role, id } = data;
           if (role === "admin") {
-            console.log("push to buses");
             history.push("/buses");
           } else if (role === "employee") {
             history.push("/start");

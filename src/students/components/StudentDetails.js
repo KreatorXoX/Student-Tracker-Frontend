@@ -1,21 +1,20 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useHistory } from "react-router-dom";
 
-import { useAuth } from "../../shared/context/authStore";
 import { useGetStudent } from "../../api/studentApi";
+import { useDeleteStudent } from "../../api/studentApi";
+import { useUpdateStudent } from "../../api/studentApi";
 import { useGetBuses } from "../../api/busesApi";
-import { AuthContext } from "../../shared/context/auth-context";
-import { useHttpClient } from "../../shared/hooks/http-hook";
+
+import { useAuth } from "../../shared/context/authStore";
 import { useForm } from "../../shared/hooks/form-hook";
 
 import Input from "../../shared/components/FormElements/Input";
 import Button from "../../shared/components/FormElements/Button";
 import Toggle from "../../shared/components/FormElements/Toggle";
-
 import Map from "../../shared/components/UI-Elements/Map";
 import Card from "../../shared/components/UI-Elements/Card";
 import Modal from "../../shared/components/UI-Elements/Modal";
-import ErrorModal from "../../shared/components/UI-Elements/ErrorModal";
 import LoadingSpinner from "../../shared/components/UI-Elements/LoadingSpinner";
 
 import { studentInitial } from "../../shared/util/formInitials/studentFormInitial";
@@ -35,17 +34,26 @@ import {
 import styles from "./StudentDetails.module.css";
 
 const StudentDetails = () => {
+  const [isComing, setIsComing] = useState(true);
   const history = useHistory();
   const stdId = useParams().stdId;
   const role = useAuth((state) => state.role);
-  const authCtx = useContext(AuthContext);
-  const { data, isLoading, isSuccess } = useGetStudent(stdId);
-  const { data: buses } = useGetBuses();
+
+  const {
+    data: studentData,
+    isLoading: isLoadingStudent,
+    isSuccess: isSuccessStudent,
+  } = useGetStudent(stdId);
+  const {
+    data: busesData,
+    isLoading: isLoadingBus,
+    isSuccess: isSuccessBus,
+  } = useGetBuses();
+
+  const { mutateAsync: deleteStudent } = useDeleteStudent();
+  const { mutateAsync: updateStudent } = useUpdateStudent();
+
   const [formState, inputHandler] = useForm(studentInitial, false);
-  const { error, sendRequest, clearError } = useHttpClient();
-  const [student, setStudent] = useState();
-  const [isComing, setIsComing] = useState();
-  const [selectOptions, setSelectOptions] = useState([]);
 
   const [showContacts, setShowContacts] = useState(false);
   const [showMap, setShowMap] = useState(false);
@@ -59,46 +67,59 @@ const StudentDetails = () => {
   const closeNotificationHandler = () => setNotification(false);
 
   const deleteStudentHandler = async () => {
-    //delete student
+    await deleteStudent(stdId, {
+      onSuccess: () => {
+        history.push("/students");
+      },
+    });
     setNotification(false);
-    history.push("/students");
   };
 
-  if (isSuccess) {
+  let busesOptions;
+  useEffect(() => {
+    if (studentData?.student) {
+      setIsComing(studentData.student.isComing);
+    }
+  }, [studentData]);
+  if (isSuccessStudent && isSuccessBus) {
     if (role === "admin") {
-      const options = buses.buses.map((bus) => (
+      busesOptions = busesData?.buses.map((bus) => (
         <option key={bus.id}>{bus.schoolName}</option>
       ));
-      setSelectOptions(options);
     } else {
-      setSelectOptions([
-        <option key={data.student.id}>{data.student.schoolName}</option>,
-      ]);
+      busesOptions = [
+        <option key={studentData.student.id}>
+          {studentData.student.schoolName}
+        </option>,
+      ];
     }
-    setStudent(data.student);
-    setIsComing(data.student.isComing);
   }
+  console.log(studentData?.student);
 
   const formHandler = async (e) => {
     e.preventDefault();
-    const updatedStudent = {
+    const updateData = {
+      id: stdId,
       name: formState.inputs.name.value + " " + formState.inputs.surname.value,
       age: formState.inputs.age.value,
       bloodType: formState.inputs.bloodType.value,
       schoolName: formState.inputs.schoolName.value,
       alergies: formState.inputs.alergies.value.split(","),
       knownDiseases: formState.inputs.knownDiseases.value.split(","),
-      isComing,
+      isComing: isComing,
     };
-    // updateSTudent
-    history.push("/students");
+
+    await updateStudent(updateData, {
+      onSuccess: () => {
+        history.push("/students");
+      },
+    });
   };
 
   return (
     <>
-      <ErrorModal error={error} onClear={clearError} />
-      {isLoading && <LoadingSpinner asOverlay />}
-      {student && (
+      {(isLoadingBus || isLoadingStudent) && <LoadingSpinner asOverlay />}
+      {isSuccessBus && isSuccessStudent && (
         <>
           <form onSubmit={formHandler} className={styles.studentForm}>
             <div className={styles.name}>
@@ -110,7 +131,7 @@ const StudentDetails = () => {
                 errorText="Name Field can't be empty !"
                 onInputChange={inputHandler}
                 validators={[VALIDATOR_REQUIRE()]}
-                initialValue={student.name.split(" ")[0]}
+                initialValue={studentData.student.name.split(" ")[0]}
                 initialValid={true}
               />
             </div>
@@ -123,7 +144,7 @@ const StudentDetails = () => {
                 errorText="Surname Field can't be empty !"
                 onInputChange={inputHandler}
                 validators={[VALIDATOR_REQUIRE()]}
-                initialValue={student.name.split(" ")[1]}
+                initialValue={studentData.student.name.split(" ")[1]}
                 initialValid={true}
               />
             </div>
@@ -136,7 +157,7 @@ const StudentDetails = () => {
                 errorText="Age must be between 5 - 25!"
                 onInputChange={inputHandler}
                 validators={[VALIDATOR_MIN(5), VALIDATOR_MAX(25)]}
-                initialValue={student.age}
+                initialValue={studentData.student.age}
                 initialValid={true}
               />
             </div>
@@ -149,7 +170,7 @@ const StudentDetails = () => {
                 errorText="Blood Type Field can't be empty !"
                 onInputChange={inputHandler}
                 validators={[VALIDATOR_REQUIRE()]}
-                initialValue={student.bloodType}
+                initialValue={studentData.student.bloodType}
                 initialValid={true}
               />
             </div>
@@ -157,15 +178,15 @@ const StudentDetails = () => {
               <Input
                 id="schoolName"
                 element="select"
-                options={selectOptions}
+                options={busesOptions}
                 label="School Name"
                 type="text"
-                disabled={authCtx.userInfo.role === "admin" ? false : true}
+                disabled={role === "admin" ? false : true}
                 errorText="Please pick a school name"
-                initialValue={student.schoolName}
+                initialValue={studentData.student.schoolName}
                 initialValid={true}
                 defaultText={
-                  selectOptions.filter((option) => option !== null).length !== 0
+                  busesOptions.filter((option) => option !== null).length !== 0
                     ? "Please pick a school"
                     : "No available bus"
                 }
@@ -183,7 +204,7 @@ const StudentDetails = () => {
                 errorText=""
                 onInputChange={inputHandler}
                 validators={[]}
-                initialValue={student.alergies.join(",")}
+                initialValue={studentData.student.alergies.join(",")}
                 initialValid={true}
               />
             </div>
@@ -196,7 +217,7 @@ const StudentDetails = () => {
                 errorText=""
                 onInputChange={inputHandler}
                 validators={[]}
-                initialValue={student.knownDiseases.join(",")}
+                initialValue={studentData.student.knownDiseases.join(",")}
                 initialValid={true}
               />
             </div>
@@ -208,7 +229,7 @@ const StudentDetails = () => {
                   alt="profile"
                 />
               </Avatar> */}
-              <Card image={student.image} />
+              <Card image={studentData.student.image | ""} />
             </div>
             <div className={styles.emergencyContacts}>
               <strong>Emergency Contacts</strong>
@@ -220,7 +241,7 @@ const StudentDetails = () => {
             </div>
 
             <div className={styles.viewOnMap}>
-              {student.isOnTheBus && (
+              {studentData.student.isOnTheBus && (
                 <>
                   <strong>View On Map</strong>
                   <div className={styles.map}>
@@ -230,20 +251,22 @@ const StudentDetails = () => {
                   </div>
                 </>
               )}
-              {!student.isOnTheBus && student.wasOnTheBus && (
-                <p style={{ color: "red", cursor: "default" }}>
-                  *Child left the bus!
-                </p>
-              )}
-              {!student.isOnTheBus && !student.wasOnTheBus && (
-                <p style={{ color: "red", cursor: "default" }}>
-                  *Bus session not started
-                </p>
-              )}
+              {!studentData.student.isOnTheBus &&
+                studentData.student.wasOnTheBus && (
+                  <p style={{ color: "red", cursor: "default" }}>
+                    *Child left the bus!
+                  </p>
+                )}
+              {!studentData.student.isOnTheBus &&
+                !studentData.student.wasOnTheBus && (
+                  <p style={{ color: "red", cursor: "default" }}>
+                    *Bus session not started
+                  </p>
+                )}
             </div>
             <div className={styles.isComing}>
               <Toggle
-                studentStatus={isComing}
+                checked={isComing}
                 label={"Is Coming"}
                 onChange={() => {
                   setIsComing((prev) => !prev);
@@ -258,7 +281,7 @@ const StudentDetails = () => {
               <Button invert large type="submit">
                 Update Changes
               </Button>
-              {authCtx.userInfo.role === "admin" && (
+              {role === "admin" && (
                 <Button
                   onClick={openNotificationHandler}
                   danger
@@ -282,7 +305,7 @@ const StudentDetails = () => {
             }
           >
             <div className={styles.modalContacts}>
-              {student.emergencyContacts.map((contact) => (
+              {studentData.student.emergencyContacts.map((contact) => (
                 <div key={contact.name} className={styles.modalContact}>
                   <div>Name : {contact.name}</div>
                   <div>Relation : {contact.howRelated}</div>
@@ -321,8 +344,8 @@ const StudentDetails = () => {
           >
             <Map
               center={{
-                lat: Number(student.location.lat),
-                lng: Number(student.location.lng),
+                lat: Number(studentData.student.location.lat),
+                lng: Number(studentData.student.location.lng),
               }}
               zoom={15}
             />

@@ -1,17 +1,13 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useEffect } from "react";
 import { useHistory } from "react-router-dom";
 
-import { AuthContext } from "../../shared/context/auth-context";
-import { useHttpClient } from "../../shared/hooks/http-hook";
-import { useForm } from "../../shared/hooks/form-hook";
-
+import { useCreateUser } from "../../api/usersApi";
+import { useGetBuses } from "../../api/busesApi";
 import Input from "../../shared/components/FormElements/Input";
 import ImageUpload from "../../shared/components/FormElements/ImageUpload";
 import Button from "../../shared/components/FormElements/Button";
-
-import ErrorModal from "../../shared/components/UI-Elements/ErrorModal";
 import LoadingSpinner from "../../shared/components/UI-Elements/LoadingSpinner";
-
+import { useForm } from "../../shared/hooks/form-hook";
 import { userFormInitial } from "../../shared/util/formInitials/userFormInitial";
 import {
   VALIDATOR_MINLENGTH,
@@ -23,7 +19,7 @@ import {
 
 import styles from "./NewUser.module.css";
 
-const selectOptions = (
+const roleOptions = (
   <>
     <option key={"opt1"}>Parent</option>
     <option key={"opt2"}>Employee</option>
@@ -32,34 +28,20 @@ const selectOptions = (
 );
 
 const NewUser = () => {
-  const authCtx = useContext(AuthContext);
-  const [selectForBus, setSelectForBus] = useState();
+  const [formState, inputHandler, SetData] = useForm(userFormInitial, false);
+
+  const { mutateAsync: createUser, isLoading: isSending } = useCreateUser();
+  const { data, isLoading, isSuccess } = useGetBuses();
 
   const history = useHistory();
-  const [formState, inputHandler, SetData] = useForm(userFormInitial, false);
-  const { isLoading, error, sendRequest, clearError } = useHttpClient();
-
-  useEffect(() => {
-    const fetchBuses = async () => {
-      try {
-        const data = await sendRequest(
-          `${process.env.REACT_APP_BACKEND_URL}/buses`,
-          "GET",
-          null,
-          { Authorization: "Bearer " + authCtx.token }
-        );
-        setSelectForBus(
-          data.buses.map((bus) => (
-            <option key={bus._id} value={bus._id}>
-              {bus.schoolName}
-            </option>
-          ))
-        );
-      } catch (error) {}
-    };
-
-    fetchBuses();
-  }, [sendRequest, authCtx.token]);
+  let busOptions;
+  if (isSuccess) {
+    busOptions = data?.buses.map((bus) => (
+      <option key={bus._id} value={bus._id}>
+        {bus.schoolName}
+      </option>
+    ));
+  }
 
   const role = formState.inputs.role.value;
   const validityWithoutBus =
@@ -99,23 +81,14 @@ const NewUser = () => {
         ? formState.inputs.bus.value
         : undefined
     );
-
-    try {
-      await sendRequest(
-        `${process.env.REACT_APP_BACKEND_URL}/users/register`,
-        "POST",
-        formData,
-        { Authorization: "Bearer " + authCtx.token }
-      );
-    } catch (error) {}
+    await createUser(formData);
 
     history.push(`/users/${formState.inputs.role.value.toLowerCase()}`);
   };
 
   return (
     <>
-      <ErrorModal error={error} onClear={clearError} />
-      {isLoading && <LoadingSpinner asOverlay />}
+      {(isLoading || isSending) && <LoadingSpinner asOverlay />}
       <form onSubmit={formHandler} className={styles.parentForm}>
         <div className={styles.profilePic}>
           <ImageUpload id="image" onInputChange={inputHandler} />
@@ -175,7 +148,7 @@ const NewUser = () => {
             errorText="Role Field can't be empty !"
             onInputChange={inputHandler}
             validators={[VALIDATOR_REQUIRE_SELECT()]}
-            options={selectOptions}
+            options={roleOptions}
             defaultText={"Please pick a role"}
           />
         </div>
@@ -201,7 +174,7 @@ const NewUser = () => {
               placeholder="Pick a bus for the employee"
               errorText="Must pick a bus"
               onInputChange={inputHandler}
-              options={selectForBus}
+              options={busOptions}
               defaultText={"Please pick a bus"}
               validators={[VALIDATOR_REQUIRE_SELECT()]}
             />

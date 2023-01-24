@@ -16,7 +16,7 @@ const getStudents = async (by, id) => {
 export const useGetStudents = (by, id) =>
   useQuery({
     queryFn: () => getStudents(by, id),
-    queryKey: ["students"],
+    queryKey: [`students${by ? by : ""}${id ? id : ""}`],
     onError: (err) => {
       ToastError(err);
     },
@@ -34,62 +34,50 @@ const getStudentById = async (id) => {
 export const useGetStudent = (id) =>
   useQuery({
     queryFn: () => getStudentById(id),
+    enabled: !!id,
     queryKey: [`student-${id}`],
     onError: (err) => {
       ToastError(err);
     },
   });
 
-const getStudentByBus = async (busId) => {
-  const response = await axiosClient.get(`/students/bus/${busId}`, {
-    headers: {
-      Authorization: `Bearer ${useAuthStore.getState().token}`,
-    },
-  });
-  return response.data;
-};
-
-export const useStudentByBus = (busId) =>
-  useQuery({
-    queryFn: () => getStudentByBus(busId),
-    queryKey: [`${busId}-students`],
-    onError: (err) => {
-      ToastError(err);
-    },
-  });
-
-const getStudentByParent = async (parentId) => {
-  const response = await axiosClient.get(`/students/parent/${parentId}`, {
-    headers: {
-      Authorization: `Bearer ${useAuthStore.getState().token}`,
-    },
-  });
-  return response.data;
-};
-
-export const useStudentByParent = (parentId) =>
-  useQuery({
-    queryFn: () => getStudentByParent(parentId),
-    queryKey: [`${parentId}-students`],
-    onError: (err) => {
-      ToastError(err);
-    },
-  });
-
 // Post Req
-const createStudent = async (studentData) => {
-  const response = await axiosClient.post("/students", studentData, {
-    headers: {
-      Authorization: `Bearer ${useAuthStore.getState().token}`,
-    },
-  });
+const createStudent = async (parentId, studentData) => {
+  console.log(parentId);
+
+  const formData = new FormData();
+
+  formData.append("name", studentData.name);
+  formData.append("image", studentData.image);
+  formData.append("schoolName", studentData.schoolName);
+  formData.append("age", studentData.age);
+  formData.append("bloodType", studentData.bloodType);
+  formData.append("alergies", studentData.alergies);
+  formData.append("knownDiseases", studentData.knownDiseases);
+  formData.append(
+    "emergencyContacts",
+    JSON.stringify(studentData.emergencyContacts)
+  );
+
+  const response = await axiosClient.post(
+    `/students/new/${parentId}`,
+    formData,
+    {
+      headers: {
+        Authorization: `Bearer ${useAuthStore.getState().token}`,
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
   return response.data;
 };
 
 export const useCreateStudent = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data) => createStudent(data),
+    mutationFn: ({ parentId, studentData }) => {
+      return createStudent(parentId, studentData);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries(["students"]);
       ToastSuccess("New Student Created Successfuly");

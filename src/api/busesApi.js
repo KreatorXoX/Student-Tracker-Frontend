@@ -35,6 +35,7 @@ export const useGetBus = (id) =>
   useQuery({
     queryFn: () => getBusById(id),
     queryKey: [`bus-${id}`],
+    enabled: !!id,
     onError: (err) => {
       ToastError(err);
     },
@@ -57,6 +58,26 @@ export const useCreateBus = () => {
     onSuccess: () => {
       queryClient.invalidateQueries(["buses"]);
       ToastSuccess("New Bus Created Successfuly");
+    },
+    onError: (err) => {
+      ToastError(err);
+    },
+  });
+};
+const postSession = async (sessionData) => {
+  const response = await axiosClient.post("/sessions", sessionData, {
+    headers: {
+      Authorization: `Bearer ${useAuthStore.getState().token}`,
+    },
+  });
+  return response.data;
+};
+
+export const usePostSession = () => {
+  return useMutation({
+    mutationFn: (data) => postSession(data),
+    onSuccess: () => {
+      ToastSuccess("Session Finalized!");
     },
     onError: (err) => {
       ToastError(err);

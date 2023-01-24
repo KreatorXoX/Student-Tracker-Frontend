@@ -28,15 +28,13 @@ const Students = () => {
     fetchId = userInfo.id;
   }
 
-  const { data, isLoading } = useGetStudents(fetchBy, fetchId);
+  const { data, isLoading, isSuccess } = useGetStudents(fetchBy, fetchId);
 
-  // console.log(fetchBy, fetchId);
-  // console.log(data);
   return (
     <>
       <div className={styles.layout}>
         {isLoading && <LoadingSpinner asOverlay />}
-        {!isLoading && (
+        {!isLoading && isSuccess && (
           <div className={styles.list}>
             <StudentList students={data.students} />
           </div>

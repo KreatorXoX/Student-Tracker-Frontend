@@ -53,7 +53,7 @@ const BusStudent = ({ name, id, image, isOnTheBus }) => {
   return (
     <div>
       {(statusIsLoading || locationIsLoading) && <LoadingSpinner />}
-      {!statusIsLoading && !statusIsLoading && (
+      {!statusIsLoading && !locationIsLoading && (
         <Card
           style={{ opacity: presence ? "1" : "0.4" }}
           image={image}

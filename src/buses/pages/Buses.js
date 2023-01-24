@@ -11,7 +11,7 @@ const Buses = () => {
     <>
       <div className={styles.layout}>
         <div className={styles.addNew}>
-          <Button success large to="/bus/new">
+          <Button success mid to="/bus/new">
             Add New Bus
           </Button>
         </div>

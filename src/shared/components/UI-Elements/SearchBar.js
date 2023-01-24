@@ -6,7 +6,7 @@ import { useSearch } from "../../context/searchStore";
 
 import styles from "./SearchBar.module.css";
 
-const SearchBar = () => {
+const SearchBar = ({ placeholder }) => {
   const setSearch = useSearch((state) => state.setSearch);
   return (
     <form className={styles.search}>
@@ -14,6 +14,7 @@ const SearchBar = () => {
         className={styles["search__input"]}
         type="text"
         id="search"
+        placeholder={placeholder ? placeholder : "Search by Name"}
         onChange={(e) => {
           setSearch(e.target.value);
         }}

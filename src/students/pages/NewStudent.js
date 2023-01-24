@@ -1,18 +1,18 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
 
-import { AuthContext } from "../../shared/context/auth-context";
-import { useHttpClient } from "../../shared/hooks/http-hook";
-import { useForm } from "../../shared/hooks/form-hook";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faMinusCircle } from "@fortawesome/free-solid-svg-icons";
 
+import { useGetBuses } from "../../api/busesApi";
+import { useCreateStudent } from "../../api/studentApi";
+
+import { useForm } from "../../shared/hooks/form-hook";
 import Input from "../../shared/components/FormElements/Input";
 import ImageUpload from "../../shared/components/FormElements/ImageUpload";
 import Button from "../../shared/components/FormElements/Button";
-
 import Modal from "../../shared/components/UI-Elements/Modal";
-import ErrorModal from "../../shared/components/UI-Elements/ErrorModal";
 import LoadingSpinner from "../../shared/components/UI-Elements/LoadingSpinner";
-
 import { studentInitial } from "../../shared/util/formInitials/studentFormInitial";
 import {
   VALIDATOR_REQUIRE,
@@ -21,18 +21,13 @@ import {
   VALIDATOR_MAX,
 } from "../../shared/util/validators";
 
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faMinusCircle } from "@fortawesome/free-solid-svg-icons";
-
 import styles from "./NewStudent.module.css";
 
 const NewStudent = () => {
-  const authCtx = useContext(AuthContext);
   const parentId = useParams().parentId;
   const history = useHistory();
   const [formState, inputHandler] = useForm(studentInitial, false);
-  const { isLoading, error, sendRequest, clearError } = useHttpClient();
-  const [selectOptions, setSelectOptions] = useState([]);
+
   const [diseases, setDiseases] = useState([]);
   const [contacts, setContacts] = useState([]);
   const [alergies, setAlergies] = useState([]);
@@ -40,60 +35,40 @@ const NewStudent = () => {
   const [contactModal, setOpenContactModal] = useState(false);
   const [alergyModal, setOpenAlergyModal] = useState(false);
 
-  useEffect(() => {
-    const fetchBuses = async () => {
-      try {
-        const data = await sendRequest(
-          `${process.env.REACT_APP_BACKEND_URL}/buses`,
-          "GET",
-          null,
-          { Authorization: "Bearer " + authCtx.token }
-        );
+  const { data, isLoading, isSuccess } = useGetBuses();
+  const { mutateAsync: createStudent } = useCreateStudent();
 
-        setSelectOptions(
-          data.buses.map((bus) => {
-            if (bus.capacity > 0)
-              return <option key={bus.id}>{bus.schoolName}</option>;
-            return null;
-          })
-        );
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    fetchBuses();
-  }, [sendRequest, authCtx.token]);
+  let busOptions;
+  if (isSuccess) {
+    busOptions = data?.buses.map((bus) => {
+      if (bus.capacity > 0)
+        return <option key={bus.id}>{bus.schoolName}</option>;
+      return null;
+    });
+  }
 
   const formHandler = async (e) => {
     e.preventDefault();
 
-    const formData = new FormData();
+    const studentData = {
+      name: formState.inputs.name.value + " " + formState.inputs.surname.value,
+      image: formState.inputs.image.value,
+      schoolName: formState.inputs.schoolName.value,
+      age: formState.inputs.age.value,
+      bloodType: formState.inputs.bloodType.value,
+      alergies: alergies,
+      knownDiseases: diseases,
+      emergencyContacts: contacts,
+    };
 
-    formData.append(
-      "name",
-      formState.inputs.name.value + " " + formState.inputs.surname.value
+    await createStudent(
+      { parentId, studentData },
+      {
+        onSuccess: () => {
+          history.push("/students");
+        },
+      }
     );
-    formData.append("image", formState.inputs.image.value);
-    formData.append("schoolName", formState.inputs.schoolName.value);
-    formData.append("age", formState.inputs.age.value);
-    formData.append("bloodType", formState.inputs.bloodType.value);
-    formData.append("alergies", alergies);
-    formData.append("knownDiseases", diseases);
-    formData.append("emergencyContacts", JSON.stringify(contacts));
-
-    try {
-      await sendRequest(
-        `${process.env.REACT_APP_BACKEND_URL}/students/new/${parentId}`,
-        "POST",
-        formData,
-
-        { Authorization: "Bearer " + authCtx.token }
-      );
-    } catch (error) {
-      console.log(error);
-    }
-
-    history.replace(`/user/${parentId}`);
   };
 
   const addDiseaseHandler = () => {
@@ -160,7 +135,6 @@ const NewStudent = () => {
   };
   return (
     <>
-      <ErrorModal error={error} onClear={clearError} />
       {isLoading && <LoadingSpinner asOverlay />}
       {!isLoading && (
         <form onSubmit={formHandler} className={styles.studentForm}>
@@ -197,13 +171,13 @@ const NewStudent = () => {
             <Input
               id="schoolName"
               element="select"
-              options={selectOptions}
+              options={busOptions}
               label="School Name"
               type="text"
               placeholder="Enter the School Name"
               errorText="Please pick a school name"
               defaultText={
-                selectOptions.filter((option) => option !== null).length !== 0
+                busOptions.filter((option) => option !== null).length !== 0
                   ? "Please pick a school"
                   : "No available bus"
               }

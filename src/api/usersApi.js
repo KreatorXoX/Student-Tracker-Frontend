@@ -23,23 +23,24 @@ export const useGetUsersByRole = (role) =>
     },
   });
 
-// const getStudentById = async (id) => {
-//   const response = await axiosClient.get(`/students/${id}`, {
-//     headers: {
-//       Authorization: `Bearer ${useAuthStore.getState().token}`,
-//     },
-//   });
-//   return response.data;
-// };
+const getUserById = async (id) => {
+  const response = await axiosClient.get(`/users/user/${id}`, {
+    headers: {
+      Authorization: `Bearer ${useAuthStore.getState().token}`,
+    },
+  });
 
-// export const useGetStudent = (id) =>
-//   useQuery({
-//     queryFn: () => getStudentById(id),
-//     queryKey: [`student-${id}`],
-//     onError: (err) => {
-//       ToastError(err);
-//     },
-//   });
+  return response.data;
+};
+
+export const useGetUser = (id) =>
+  useQuery({
+    queryFn: () => getUserById(id),
+    queryKey: [`user-${id}`],
+    onError: (err) => {
+      ToastError(err);
+    },
+  });
 
 // const getStudentByBus = async (busId) => {
 //   const response = await axiosClient.get(`/students/bus/${busId}`, {
@@ -78,130 +79,76 @@ export const useGetUsersByRole = (role) =>
 //   });
 
 // // Post Req
-// const createStudent = async (studentData) => {
-//   const response = await axiosClient.post("/students", studentData, {
-//     headers: {
-//       Authorization: `Bearer ${useAuthStore.getState().token}`,
-//     },
-//   });
-//   return response.data;
-// };
+const createUser = async (userData) => {
+  const response = await axiosClient.post("/auth/register", userData, {
+    headers: {
+      Authorization: `Bearer ${useAuthStore.getState().token}`,
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return response.data;
+};
 
-// export const useCreateStudent = () => {
-//   const queryClient = useQueryClient();
-//   return useMutation({
-//     mutationFn: (data) => createStudent(data),
-//     onSuccess: () => {
-//       queryClient.invalidateQueries(["students"]);
-//       ToastSuccess("New Student Created Successfuly");
-//     },
-//     onError: (err) => {
-//       ToastError(err);
-//     },
-//   });
-// };
+export const useCreateUser = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data) => createUser(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["users"]);
+      ToastSuccess("New User Created Successfuly");
+    },
+    onError: (err) => {
+      ToastError(err);
+    },
+  });
+};
 
 // // Patch Req
-// const updateStudent = async ({ id, ...restProps }) => {
-//   const response = await axiosClient.patch(`/students/${id}`, restProps, {
-//     headers: {
-//       Authorization: `Bearer ${useAuthStore.getState().token}`,
-//     },
-//   });
-//   return response.data;
-// };
+const updateUser = async ({ id, ...restProps }) => {
+  const response = await axiosClient.patch(`/users/${id}`, restProps, {
+    headers: {
+      Authorization: `Bearer ${useAuthStore.getState().token}`,
+    },
+  });
+  return response.data;
+};
 
-// export const useUpdateStudent = () => {
-//   const queryClient = useQueryClient();
+export const useUpdateUser = () => {
+  const queryClient = useQueryClient();
 
-//   return useMutation({
-//     mutationFn: (data) => updateStudent(data),
-//     onSuccess: ({ student }) => {
-//       queryClient.invalidateQueries([`student-${student.id}`]);
-//       ToastSuccess("Student updated Successfully");
-//     },
-//     onError: (err) => {
-//       ToastError(err);
-//     },
-//   });
-// };
+  return useMutation({
+    mutationFn: (data) => updateUser(data),
+    onSuccess: ({ id }) => {
+      queryClient.invalidateQueries([`user-${id}`]);
+      ToastSuccess("User updated Successfully");
+    },
+    onError: (err) => {
+      ToastError(err);
+    },
+  });
+};
 
-// const updateStatus = async ({ id, ...restProps }) => {
-//   const response = await axiosClient.patch(
-//     `/students/updateStatus/${id}`,
-//     restProps,
-//     {
-//       headers: {
-//         Authorization: `Bearer ${useAuthStore.getState().token}`,
-//       },
-//     }
-//   );
-//   return response.data;
-// };
+// Delete Req
+const deleteUser = async (id) => {
+  const response = await axiosClient.delete(`/users/${id}`, {
+    headers: {
+      Authorization: `Bearer ${useAuthStore.getState().token}`,
+    },
+  });
+  return response.data;
+};
 
-// export const useStudentStatus = () => {
-//   const queryClient = useQueryClient();
+export const useDeleteUser = () => {
+  const queryClient = useQueryClient();
 
-//   return useMutation({
-//     mutationFn: (status) => updateStatus(status),
-//     onSuccess: ({ id }) => {
-//       queryClient.invalidateQueries([`student-${id}`]);
-//       ToastSuccess("Student status is updated");
-//     },
-//     onError: (err) => {
-//       ToastError(err);
-//     },
-//   });
-// };
-// const updateLocation = async ({ id, ...restProps }) => {
-//   const response = await axiosClient.patch(
-//     `/students/updateLocation/${id}`,
-//     restProps,
-//     {
-//       headers: {
-//         Authorization: `Bearer ${useAuthStore.getState().token}`,
-//       },
-//     }
-//   );
-//   return response.data;
-// };
-
-// export const useStudentLocation = () => {
-//   const queryClient = useQueryClient();
-
-//   return useMutation({
-//     mutationFn: (data) => updateLocation(data),
-//     onSuccess: ({ id }) => {
-//       queryClient.invalidateQueries([`student-${id}`]);
-//       ToastSuccess("Student location is updated");
-//     },
-//     onError: (err) => {
-//       ToastError(err);
-//     },
-//   });
-// };
-
-// // Delete Req
-// const deleteStudent = async (id) => {
-//   const response = await axiosClient.delete(`/students/${id}`, {
-//     headers: {
-//       Authorization: `Bearer ${useAuthStore.getState().token}`,
-//     },
-//   });
-//   return response.data;
-// };
-
-// export const useDeleteStudent = () => {
-//   const queryClient = useQueryClient();
-
-//   return useMutation({
-//     mutationFn: (id) => deleteStudent(id),
-//     onSuccess: ({ message }) => {
-//       queryClient.invalidateQueries(["students"]);
-//       ToastSuccess(message);
-//     },
-//     onError: (err) => {
-//       ToastError(err);
-//     },
-//   });
-// };
+  return useMutation({
+    mutationFn: (id) => deleteUser(id),
+    onSuccess: ({ message }) => {
+      queryClient.invalidateQueries(["users"]);
+      ToastSuccess(message);
+    },
+    onError: (err) => {
+      ToastError(err);
+    },
+  });
+};
