@@ -1,16 +1,16 @@
-import React, { useContext } from "react";
+import React from "react";
 import { NavLink, Link } from "react-router-dom";
 
 import { useLogout } from "../../../api/authApi";
 
-import { SessContext } from "../../context/sess-context";
+import { useSessionStore } from "../../context/sessionStore";
 import { useAuthStore } from "../../context/authStore";
 
 import "./NavLinks.css";
 
 const NavLinks = () => {
   const userInfo = useAuthStore((state) => state.userInfo);
-  const isActive = useContext(SessContext).isActive;
+  const sessionInfo = useSessionStore((state) => state.sessionInfo);
 
   const { mutateAsync: logoutUser } = useLogout();
 
@@ -19,7 +19,7 @@ const NavLinks = () => {
   };
 
   return (
-    !isActive && (
+    !sessionInfo.isActive && (
       <>
         {userInfo?.id && (
           <ul className="nav-links">

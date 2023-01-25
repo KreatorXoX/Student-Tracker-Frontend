@@ -44,11 +44,8 @@ const StudentDetails = () => {
     isLoading: isLoadingStudent,
     isSuccess: isSuccessStudent,
   } = useGetStudent(stdId);
-  const {
-    data: busesData,
-    isLoading: isLoadingBus,
-    isSuccess: isSuccessBus,
-  } = useGetBuses();
+
+  const { data: busesData, isSuccess: isSuccessBus } = useGetBuses(role);
 
   const { mutateAsync: deleteStudent } = useDeleteStudent();
   const { mutateAsync: updateStudent } = useUpdateStudent();
@@ -94,7 +91,6 @@ const StudentDetails = () => {
       ];
     }
   }
-  console.log(studentData?.student);
 
   const formHandler = async (e) => {
     e.preventDefault();
@@ -118,8 +114,8 @@ const StudentDetails = () => {
 
   return (
     <>
-      {(isLoadingBus || isLoadingStudent) && <LoadingSpinner asOverlay />}
-      {isSuccessBus && isSuccessStudent && (
+      {isLoadingStudent && <LoadingSpinner asOverlay />}
+      {isSuccessStudent && (
         <>
           <form onSubmit={formHandler} className={styles.studentForm}>
             <div className={styles.name}>
@@ -186,9 +182,12 @@ const StudentDetails = () => {
                 initialValue={studentData.student.schoolName}
                 initialValid={true}
                 defaultText={
-                  busesOptions.filter((option) => option !== null).length !== 0
-                    ? "Please pick a school"
-                    : "No available bus"
+                  busesOptions
+                    ? busesOptions.filter((option) => option !== null)
+                        .length !== 0
+                      ? "Please pick a school"
+                      : "No available bus"
+                    : studentData?.student.schoolName
                 }
                 onInputChange={inputHandler}
                 validators={[VALIDATOR_REQUIRE_SELECT()]}
@@ -222,14 +221,7 @@ const StudentDetails = () => {
               />
             </div>
             <div className={styles.profilePic}>
-              {/* <Avatar style={{ backgroundColor: "white", marginTop: "1rem" }}>
-                <img
-                  src={`http://localhost:5000/${student.image}`}
-                  style={{ borderRadius: "5%" }}
-                  alt="profile"
-                />
-              </Avatar> */}
-              <Card image={studentData.student.image | ""} />
+              <Card image={studentData.student.image || ""} />
             </div>
             <div className={styles.emergencyContacts}>
               <strong>Emergency Contacts</strong>

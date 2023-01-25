@@ -10,9 +10,6 @@ import UserDetails from "./user/components/UserDetails";
 import StudentDetails from "./students/components/StudentDetails";
 import MainNavigation from "./shared/components/Navigation/MainNavigation";
 
-import { SessContext } from "./shared/context/sess-context";
-import { useSession } from "./shared/hooks/session-hook";
-
 import PrivateRoute from "./shared/util/PrivateRoute";
 import AdminRoute from "./shared/util/AdminRoute";
 import EmployeeRoute from "./shared/util/EmployeeRoute";
@@ -40,9 +37,6 @@ const NewStudent = lazy(() => import("./students/pages/NewStudent"));
 const Students = lazy(() => import("./students/pages/Students"));
 
 function App() {
-  const { sessionInfo, startSession, endSession, changePresence } =
-    useSession();
-
   let routes;
 
   routes = (
@@ -91,29 +85,13 @@ function App() {
   );
 
   return (
-    <SessContext.Provider
-      value={{
-        isActive: sessionInfo.isActive,
-        students: sessionInfo.students,
-        schoolName: sessionInfo.schoolName,
-        busDriver: sessionInfo.busDriver,
-        studentHandler: sessionInfo.studentHandler,
-        date: sessionInfo.date,
-        employeeId: sessionInfo.employeeId,
-        busId: sessionInfo.busId,
-        startSess: startSession,
-        endSess: endSession,
-        changePresenceHandler: changePresence,
-      }}
-    >
-      <BrowserRouter>
-        <MainNavigation />
-        <main>
-          <Toaster />
-          <Suspense>{routes}</Suspense>
-        </main>
-      </BrowserRouter>
-    </SessContext.Provider>
+    <BrowserRouter>
+      <MainNavigation />
+      <main>
+        <Toaster />
+        <Suspense>{routes}</Suspense>
+      </main>
+    </BrowserRouter>
   );
 }
 

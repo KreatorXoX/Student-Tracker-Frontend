@@ -1,7 +1,4 @@
-import { useContext } from "react";
 import { useHistory } from "react-router-dom";
-
-import { SessContext } from "../../shared/context/sess-context";
 
 import Button from "../../shared/components/FormElements/Button";
 
@@ -11,16 +8,28 @@ import LoadingSpinner from "../../shared/components/UI-Elements/LoadingSpinner";
 
 import { useAuthStore } from "../../shared/context/authStore";
 import { useGetStudents } from "../../api/studentApi";
+import { useGetBus } from "../../api/busesApi";
+import { useSessionStore } from "../../shared/context/sessionStore";
+
 const BusSession = () => {
   const history = useHistory();
-  const sessCtx = useContext(SessContext);
-  const userInfo = useAuthStore((state) => state.userInfo);
 
-  const { data, isLoading, isSuccess } = useGetStudents("bus", userInfo.busId);
+  const userInfo = useAuthStore((state) => state.userInfo);
+  const startSession = useSessionStore((state) => state.setSession);
+  const sessionInfo = useSessionStore((state) => state.sessionInfo);
+
+  const { data: busData } = useGetBus(userInfo.busId);
+  const {
+    data: busStudents,
+    isLoading,
+    isSuccess,
+  } = useGetStudents("bus", userInfo.busId);
 
   const startSessionHandler = async () => {
     try {
-      const stds = data?.students?.filter((std) => std.isComing !== false);
+      const stds = busStudents?.students?.filter(
+        (std) => std.isComing !== false
+      );
 
       const sessionStudents = stds.map((std) => {
         return {
@@ -32,16 +41,18 @@ const BusSession = () => {
         };
       });
 
-      sessCtx.startSess(
-        true,
-        sessionStudents,
-        data.schoolName,
-        data.busDriver,
-        data.studentHandler,
-        new Date(Date.now()).toLocaleString(),
-        userInfo.id,
-        data.busId
-      );
+      const sessionParams = {
+        isActive: true,
+        students: sessionStudents,
+        schoolName: busData.bus.schoolName,
+        busDriver: busData.bus.busDriver.name,
+        studentHandler: busData.bus.studentHandler.name,
+        date: new Date().toLocaleDateString(),
+        employeeId: userInfo.id,
+        busId: busData.bus.id,
+      };
+
+      startSession(sessionParams);
       history.push("/busStudents");
     } catch (error) {
       console.log(error.message);
@@ -64,7 +75,7 @@ const BusSession = () => {
         )}
       </div>
       <Modal
-        show={sessCtx.isActive}
+        show={sessionInfo.isActive}
         header={"Active Session Warning"}
         footer={
           <div style={{ display: "flex", justifyContent: "space-evenly" }}>

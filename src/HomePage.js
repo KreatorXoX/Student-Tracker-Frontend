@@ -1,16 +1,16 @@
-import React, { useContext } from "react";
+import React from "react";
 
 import Bus from "./assets/images/bus.png";
 
 import { useAuth } from "./shared/context/authStore";
-import { SessContext } from "./shared/context/sess-context";
+import { useSessionStore } from "./shared/context/sessionStore";
 
 import Button from "./shared/components/FormElements/Button";
 
 import styles from "./HomePage.module.css";
 const HomePage = () => {
   const isLoggedIn = useAuth((state) => state.isAuthenticated);
-  const sessCtx = useContext(SessContext);
+  const sessionInfo = useSessionStore((state) => state.sessionInfo);
 
   return (
     <div className={styles.homePage}>
@@ -37,7 +37,7 @@ const HomePage = () => {
             <Button to="/auth">Login/Register</Button>
           </div>
         )}
-        {sessCtx.isActive && (
+        {sessionInfo.isActive && (
           <div className={styles.actions}>
             <Button to="/start">Go to Session</Button>
           </div>

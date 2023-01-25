@@ -13,10 +13,11 @@ const getBuses = async () => {
   return response.data;
 };
 
-export const useGetBuses = () =>
+export const useGetBuses = (role) =>
   useQuery({
     queryFn: getBuses,
     queryKey: ["buses"],
+    enabled: !!role && role === "admin",
     onError: (err) => {
       ToastError(err);
     },

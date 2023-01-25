@@ -1,14 +1,15 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 
 import { useStudentStatus, useStudentLocation } from "../../api/studentApi";
 
-import { SessContext } from "../../shared/context/sess-context";
+import { useSessionStore } from "../../shared/context/sessionStore";
 import Button from "../../shared/components/FormElements/Button";
 import Card from "../../shared/components/UI-Elements/Card";
 import LoadingSpinner from "../../shared/components/UI-Elements/LoadingSpinner";
 
 const BusStudent = ({ name, id, image, isOnTheBus }) => {
-  const sessCtx = useContext(SessContext);
+  const sessionInfo = useSessionStore((state) => state.sessionInfo);
+  const changePersence = useSessionStore((state) => state.changePersence);
 
   const [presence, setPresence] = useState(isOnTheBus);
 
@@ -20,16 +21,18 @@ const BusStudent = ({ name, id, image, isOnTheBus }) => {
   const presenceHandler = async (state) => {
     await updatePresence({ id, state });
 
-    sessCtx.changePresenceHandler(id, state);
+    changePersence(id, state);
 
     setPresence(state);
   };
 
   useEffect(() => {
     let sendLocation;
-    if (sessCtx.isActive && presence) {
-      sendLocation = setInterval(async () => {
-        navigator.geolocation.getCurrentPosition(successCB, (err) => {
+    if (sessionInfo.isActive && presence) {
+      console.log("in useEffect");
+      sendLocation = setInterval(() => {
+        console.log("fetching location data");
+        return navigator.geolocation.getCurrentPosition(successCB, (err) => {
           console.log(err);
         });
       }, 50000);
@@ -43,12 +46,12 @@ const BusStudent = ({ name, id, image, isOnTheBus }) => {
           lng: position.coords.longitude,
         },
       };
-
+      console.log(data);
       await updateLocation(data);
     };
 
     return () => clearInterval(sendLocation);
-  }, [sessCtx.isActive, presence, id, updateLocation]);
+  }, [sessionInfo.isActive, presence, id, updateLocation]);
 
   return (
     <div>

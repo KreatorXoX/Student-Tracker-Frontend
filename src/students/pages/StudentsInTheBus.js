@@ -1,37 +1,40 @@
-import React, { useContext } from "react";
+import React from "react";
 import { useHistory } from "react-router-dom";
 
 import BusStudent from "../components/BusStudent";
 
-import { SessContext } from "../../shared/context/sess-context";
-
-import Button from "../../shared/components/FormElements/Button";
-
-import LoadingSpinner from "../../shared/components/UI-Elements/LoadingSpinner";
 import { usePostSession } from "../../api/busesApi";
+
+import { useSessionStore } from "../../shared/context/sessionStore";
+import { useAuthStore } from "../../shared/context/authStore";
+import Button from "../../shared/components/FormElements/Button";
+import LoadingSpinner from "../../shared/components/UI-Elements/LoadingSpinner";
+
 import "./StudentsInTheBus.css";
 
 const StudentsInTheBus = () => {
   const { mutateAsync: postSession, isLoading } = usePostSession();
 
   const history = useHistory();
-  const sessCtx = useContext(SessContext);
+  const userInfo = useAuthStore((state) => state.userInfo);
+  const endSession = useSessionStore((state) => state.endSession);
+  const sessionInfo = useSessionStore((state) => state.sessionInfo);
 
   const endSessionHandler = async () => {
     const sessionData = {
-      date: sessCtx.date,
-      students: sessCtx.students,
-      schoolName: sessCtx.schoolName,
-      busDriver: sessCtx.busDriver,
-      busId: sessCtx.busId,
-      studentHandler: sessCtx.studentHandler,
-      employeeId: sessCtx.employeeId,
+      date: sessionInfo.date,
+      students: sessionInfo.students,
+      schoolName: sessionInfo.schoolName,
+      busDriver: sessionInfo.busDriver,
+      busId: sessionInfo.busId,
+      studentHandler: sessionInfo.studentHandler,
+      employeeId: sessionInfo.employeeId,
     };
+
     await postSession(sessionData, {
       onSuccess: () => {
-        localStorage.removeItem("session-info");
-        sessCtx.endSess();
-        history.replace(`/user/${sessCtx.employeeId}`);
+        endSession();
+        history.replace(`/user/${userInfo.id}`);
       },
     });
   };
@@ -42,7 +45,7 @@ const StudentsInTheBus = () => {
       {
         <div className="attendanceList">
           <div className="wrapper">
-            {sessCtx.students?.map((std) => (
+            {sessionInfo.students?.map((std) => (
               <BusStudent
                 key={std.id}
                 id={std.id}
