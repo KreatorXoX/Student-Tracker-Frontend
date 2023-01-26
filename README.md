@@ -3,68 +3,30 @@
 
 Project Description
 
-Student Tracker is a web app that allows you to track your children when they are in
-the school bus on their way to school or back to home.
+The Student Tracker is a web-based application that facilitates the tracking of school-aged children during their commutes to and from school via a school bus. The app is designed for use by three distinct user groups: Administrators, Employees, and Parents.
 
-How It Is Structured
+Administrators are responsible for managing the bus, employee, parent, and student data models, including creating, updating, and deleting records as necessary. Employees, who are assigned to specific buses, are responsible for managing bus sessions and tracking the attendance of students on the bus. Parents, in turn, have the ability to inform the app of their child's planned attendance for the next school day. By default, all students are marked as "coming" unless a parent indicates otherwise.
 
-The app consists of 3 user types (Admins, Employees and Parents)
-User Types
-Firstly, the admins, who are responsible for creating, updating and deleting the bus,
-employee, parent and student data models. Secondly, the employees, who are
-responsible for managing the bus session and checking all the student’s status of
-absence/presence. Thirdly, the parents, who are responsible for informing their
-child/children’s status of coming or not coming for the next day (By default all
-students are marked as coming unless the parent toggled the switch to not coming,
-when not coming is toggled it is permanent, parent needs to toggle it back to coming
-when the child will be coming the next day).
+The application is structured in a logical manner to make it easy to use. First, Administrators must create a bus, as this is a prerequisite for creating employees and students. Next, Administrators create employees and assign them to specific buses. After creating employees, Administrators can then create parents, and subsequently, students. The parent's details page includes a button to add children, which assigns the child to a specific bus.
 
-How to Organize the Application Logically
+The application's functionality is dependent on the employee starting a bus session. If the session is not active, users are limited to performing CRUD operations on their profiles. Once the session is activated, students whose "isComing" property is marked as true and have the same assigned bus ID as the employee's, will appear on a list for the employee to track. The parents of these students will also be able to view their child's location on a map when the child is marked as present by the employee. Once the child disembarks from the bus, the employee will mark the child as absent, and the parent will no longer be able to view the child's location on the map.
 
-Since everything is connected to each other, following the given steps will make
-using this application easy. First thing an admin needs to do is to create a bus,
-because no bus means you cannot create employees and students since their
-creation requires admin to specify bus id/school name to them. After creating the
-bus/buses, admin can create employees and assigned them with the specific bus.
-For the creation of students, we need parent to exist beforehand, so after completing
-creating buses and employees, we can start creating parents. After we created
-parents. We can navigate to the parent’s details page and using the add child button
-we can start creating child for the given parent and assign the child to a bus.
-Now that we have everything we need in our application, we can start using it.
+Technologies and Libraries Used in Frontend
 
-How It Works
+- React.js
+- Axios and tanstack/react-query for data fetching and caching 
+- Zustand for state management
+- MapBox for showing the children current position on the map
+- react-hot-toast for notifying the user
+- react-transition-group for simple animations like side drawer opening and closing
+- react-router-dom for handling different routes, and creating custom private and admin routes
 
-The application depends on the employee to start the bus session. If the session is
-not active then the only thing users can do is the crud operations on their profiles.
-When the session is activated by the employee, the students whose isComing
-property marked as true and assigned bus id is the same as the employee’s, will
-appear as a list for the employee, and the parents of those students will be able see
-their child’s location on the map when the child is marked as present by the
-employee. When the child leaves the bus, the employee needs to mark that child as
-absent so when the parent wants to see their child’s location instead of `view on the
-map` button they will be seeing a message saying student got off the bus.
+Technologies and Libraries Used in Backend
 
-Technologies Used
-
-React.js and 3 rd party libraries are used for frontend.
-3 rd party libraries: fortawesome used for the icons that are used in the application,
-react-router-dom@5 used for the navigating in the application and react-transition-
-group used for animation effects (such as side drawer opening and closing).
-
-Node.js, Express.js, MongoDB, AWS S3 and 3 rd party libraries are used
-for the backend.
-3 rd party libraries: mongoose used for defining data models using Schema interface
-and managing the mongodb database, express-validator used as a middleware to
-check whether the data passed to the routes meets our specified criteria,
-jsonwebtoken used for authorization and authentication of the user, bcryptjs used for
-hashing the users’ passwords as a security measure, multer used as a middleware to
-handle image uploads because multer can process the binary files, sharp used for
-resizing the uploaded images so that there is only one format for all the images, uuid
-used for creating unique names for the uploaded images because when using AWS
-S3, if you upload an image with a name that already exists in S3 bucket, S3 bucket
-will override the existing image.
-
-*S3 Bucket was required because when the server deployed to Heroku with free tier
-membership, server shuts itself down after some time which results in losing the images that are
-uploaded to the server using fs and having no user images was not appealing to the eye so after
-some research I found that the S3 bucket was a good option for me.
+- Node.js, Express.js for creating server-side of the application
+- MongoDB and mongoose for Database and managing its operations
+- Cloudinary for storing images in the Cloud and retrieve them whenever we need it
+- Multer for handling file uploads
+- Express-validator for validating the inputs coming to our routes
+- Jsonwebtoken for authorization and authentication of application user
+- Bcrypt for hashing the passwords
