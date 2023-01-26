@@ -29,9 +29,7 @@ const BusStudent = ({ name, id, image, isOnTheBus }) => {
   useEffect(() => {
     let sendLocation;
     if (sessionInfo.isActive && presence) {
-      console.log("in useEffect");
       sendLocation = setInterval(() => {
-        console.log("fetching location data");
         return navigator.geolocation.getCurrentPosition(successCB, (err) => {
           console.log(err);
         });
@@ -46,7 +44,6 @@ const BusStudent = ({ name, id, image, isOnTheBus }) => {
           lng: position.coords.longitude,
         },
       };
-      console.log(data);
       await updateLocation(data);
     };
 

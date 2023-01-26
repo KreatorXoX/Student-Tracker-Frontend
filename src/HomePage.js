@@ -34,10 +34,10 @@ const HomePage = () => {
         </div>
         {!isLoggedIn && (
           <div className={styles.actions}>
-            <Button to="/auth">Login/Register</Button>
+            <Button to="/auth">Login</Button>
           </div>
         )}
-        {sessionInfo.isActive && (
+        {isLoggedIn && sessionInfo.isActive && (
           <div className={styles.actions}>
             <Button to="/start">Go to Session</Button>
           </div>

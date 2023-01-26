@@ -44,14 +44,15 @@ const AuthForm = () => {
       },
       {
         onSettled: (data) => {
-          const { role, id } = data;
-          if (role === "admin") {
-            history.push("/buses");
-          } else if (role === "employee") {
-            history.push("/start");
-          } else {
-            history.push(`/user/${id}`);
-          }
+          const { id } = data;
+          // if (role === "admin") {
+          //   history.push("/buses");
+          // } else if (role === "employee") {
+          //   history.push("/start");
+          // } else {
+          //   history.push(`/user/${id}`);
+          // }
+          history.push(`/user/${id}`);
         },
       }
     );

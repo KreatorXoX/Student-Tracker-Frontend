@@ -45,7 +45,7 @@ const StudentDetails = () => {
     isSuccess: isSuccessStudent,
   } = useGetStudent(stdId);
 
-  const { data: busesData, isSuccess: isSuccessBus } = useGetBuses(role);
+  const { data: busesData, isSuccess: isSuccessBus } = useGetBuses();
 
   const { mutateAsync: deleteStudent } = useDeleteStudent();
   const { mutateAsync: updateStudent } = useUpdateStudent();

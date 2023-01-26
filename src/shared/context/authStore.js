@@ -76,7 +76,7 @@ export const useAuthStore = create(
 );
 
 const refresh = useAuth.getState().persist;
-const refreshUrl = "http://localhost:5000/api/auth/refresh";
+const refreshUrl = `${process.env.REACT_APP_BACKEND_URL}/auth/refresh`;
 if (refresh) {
   console.log("refresh send");
   axios
